@@ -1,0 +1,99 @@
+Your middleware.ts currently runs on almost every request. Every time it calls verifyToken(token), it consumes CPU cycles. If a user navigates between 10 pages, you are running that decryption/verification logic 10 times.
+
+Improvement: Optimize the logic to minimize token verification and ensure static assets are strictly excluded.
+
+
+2. Implement ISR (Incremental Static Regeneration)
+For your product and category pages, you should not fetch data from MySQL on every single visit. With 5 Lakh visits, your database connections (limited to 75-100 usually) will hit a "Too Many Connections" error.
+
+Improvement: In your page files (e.g., app/products/[slug]/page.tsx), add a revalidation timer. This generates the HTML once and saves it to the VPS disk, serving it instantly to the next 10,000 users without touching the database.
+
+
+
+Since you are using Prisma (as seen in your node_modules list), every time your VPS restarts or under high load, Prisma might try to open too many connections to your local MySQL.
+
+Improvement:
+
+Ensure your DATABASE_URL in .env includes ?connection_limit=10. This forces Prisma to reuse connections rather than opening new ones for every API call.
+Use a Singleton Pattern for your Prisma client so that only one instance of the client exists in your entire Node.js process.
+
+
+In AdminProductFormClient.tsx, you are currently using standard <img> tags. While you are offloading to Cloudinary, the admin panel itself will feel slow if it has to load 50 high-res previews at once.
+
+AdminProductFormClient.tsx
+-5
++8
+
+
+Since you now have a VPS, don't just run npm start. Do these three things:
+
+Use PM2 with Clustering: Hostinger KVM1 has multiple CPU cores. npm start only uses one. Install PM2 and run:
+
+bash
+pm2 start npm --name "my-app" -i max -- start
+Use code with care. Learn more
+This runs one instance of your app per CPU core, doubling your traffic capacity instantly.
+
+Install Redis for Object Caching: Your AdminDashboardClient and AdminAnalyticsClient do heavy calculations. Use Redis to store the results of your analytics queries for 15 minutes so you don't have to query millions of order rows every time you open the dashboard.
+
+Enable Gzip/Brotli on Nginx: If you use Nginx as a reverse proxy (highly recommended on VPS), enable Brotli compression. This shrinks your JavaScript bundle size (which includes framer-motion and recharts) by up to 80%, making the site load much faster on mobile marketing traffic.
+
+Summary Checklist for 5L Traffic:
+[ ] Middleware: Ensure it's not verifying JWTs on public images/assets.
+[ ] Images: Only Cloudinary URLs + next/image component.
+[ ] Database: Index the slug and sku columns in MySQL.
+[ ] Process: Use PM2 in cluster mode.
+[ ] Builds: Build your app locally or on GitHub, then push to VPS. Never run next build on a KVM1 with traffic live; it will use all the RAM and crash the site.
+
+
+5. VPS Manager: Coolify (Highly Recommended)
+If you want a dashboard that "handles everything" (like Vercel but on your own VPS), install Coolify.
+
+It automatically monitors your containers.
+If a container crashes, it restarts it.
+It handles SSL certificates (HTTPS) automatically.
+It provides a "Health Check" feature—if your website stops responding for more than 10 seconds, Coolify will kill the old process and start a fresh one.
+To install it on a clean Ubuntu VPS:
+
+bash
+curl -fsSL https://get.coollabs.io/coolify/install.sh | bash
+Summary of your "Safety Net":
+PM2 restarts the app if it dies.
+Prisma Singleton prevents the database from locking up.
+Coolify manages the server environment and SSL.
+Sentry tells you why the code broke so you can fix it permanently.
+
+
+
+docker run -d \
+  --name ecommerce-db \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=your_strong_password \
+  -e MYSQL_DATABASE=ecommerce_db \
+  -e MYSQL_USER=luxe_user \
+  -e MYSQL_PASSWORD=user_password \
+  -v mysql_data:/var/lib/mysql \
+  --restart always \
+  mysql:8.0
+
+
+. Configure the Connection in your App
+You need to update your .env file in your project root to point to this new container. Since the container is running on the same VPS, you can use localhost or 127.0.0.1.
+DATABASE_URL="mysql://luxe_user:user_password@127.0.0.1:3306/ecommerce_db?connection_limit=10"
+
+
+
+
+
+
+
+
+4. Sync Prisma with the Container
+Now that the container is running, use these Prisma commands to set up your tables:
+
+bash
+# Generate the Prisma Client based on your schema
+npx prisma generate
+
+# Push your schema changes to the MySQL container
+npx prisma db push

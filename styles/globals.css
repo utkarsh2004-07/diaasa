@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+  --font-display: "Cormorant Garamond";
+  --font-body: "DM Sans";
+  --radius: 0.5rem;
+
+  /* Brand */
+  --brand-primary: #e08a28;
+  --brand-dark: #c4701e;
+  --brand-light: #faefd9;
+
+  /* Neutrals */
+  --bg-primary: #fefdfb;
+  --bg-secondary: #fdf9f3;
+  --bg-tertiary: #f5f3f0;
+  --text-primary: #1a1714;
+  --text-secondary: #413d38;
+  --text-muted: #8a847d;
+  --border-light: #e5e1dc;
+  --border-medium: #cac5be;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body), "DM Sans", system-ui, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* ─── Selection ─── */
+::selection {
+  background-color: #faefd9;
+  color: #1a1714;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f5f3f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #cac5be;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8a847d;
+}
+
+/* ─── Typography ─── */
+.font-display {
+  font-family: var(--font-display), "Cormorant Garamond", Georgia, serif;
+}
+
+/* ─── Shimmer skeleton ─── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f5f3f0 25%,
+    #ede9e4 50%,
+    #f5f3f0 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ─── Product card hover ─── */
+.product-card {
+  @apply transition-all duration-300 ease-smooth;
+}
+.product-card:hover {
+  @apply -translate-y-1 shadow-medium;
+}
+.product-card:hover .product-image {
+  @apply scale-105;
+}
+
+/* ─── Button base ─── */
+.btn-primary {
+  @apply bg-brand-500 text-white font-body font-medium tracking-wide
+    px-6 py-3 rounded-full
+    transition-all duration-200 ease-smooth
+    hover:bg-brand-600 hover:shadow-brand
+    active:scale-95
+    disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply border border-charcoal-300 text-charcoal-700 font-body font-medium tracking-wide
+    px-6 py-3 rounded-full
+    transition-all duration-200 ease-smooth
+    hover:border-brand-500 hover:text-brand-500
+    active:scale-95;
+}
+
+.btn-ghost {
+  @apply text-charcoal-700 font-body font-medium
+    px-4 py-2 rounded-lg
+    transition-all duration-200 ease-smooth
+    hover:bg-charcoal-50
+    active:scale-95;
+}
+
+/* ─── Input base ─── */
+.input-base {
+  @apply w-full px-4 py-3 rounded-xl border border-charcoal-200
+    bg-white text-charcoal-900 placeholder-charcoal-400
+    font-body text-sm
+    transition-all duration-200
+    focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400
+    disabled:opacity-50 disabled:bg-charcoal-50;
+}
+
+/* ─── Badge ─── */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-brand { @apply badge bg-brand-100 text-brand-700; }
+.badge-green { @apply badge bg-green-100 text-green-700; }
+.badge-red   { @apply badge bg-red-100 text-red-700; }
+.badge-gray  { @apply badge bg-charcoal-100 text-charcoal-700; }
+
+/* ─── Section headings ─── */
+.section-title {
+  @apply font-display text-3xl md:text-4xl lg:text-5xl font-light text-charcoal-900 leading-tight;
+}
+.section-subtitle {
+  @apply font-body text-base text-charcoal-500 leading-relaxed;
+}
+
+/* ─── Page transitions ─── */
+.page-enter {
+  animation: fadeUp 0.5s ease-out;
+}
+
+/* ─── Glass morphism ─── */
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-white/50;
+}
+
+/* ─── Marquee ─── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+.marquee-track {
+  animation: marquee 25s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Fade overlap (hero text) ─── */
+.text-outline {
+  -webkit-text-stroke: 1px currentColor;
+  color: transparent;
+}
+
+/* ─── OTP Input ─── */
+.otp-input {
+  @apply w-12 h-14 text-center text-xl font-bold rounded-xl border-2 border-charcoal-200
+    focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200
+    transition-all duration-200;
+}
+
+/* ─── Star rating ─── */
+.star-filled { color: #e08a28; }
+.star-empty  { color: #e5e1dc; }
+
+/* ─── Quantity stepper ─── */
+.qty-btn {
+  @apply w-9 h-9 flex items-center justify-center rounded-full border border-charcoal-200
+    text-charcoal-700 transition-all duration-200 hover:border-brand-400 hover:text-brand-500
+    active:scale-90;
+}
+
+/* ─── Hide scrollbar (thumbnail strip) ─── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Toast overrides ─── */
+.react-hot-toast-container > div {
+  font-family: var(--font-body), "DM Sans", system-ui;
+}

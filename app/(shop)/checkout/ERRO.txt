@@ -1,0 +1,37 @@
+Linting and checking validity of types  ..Failed to compile.
+
+./components/profile/ProfileClient.tsx:78:55
+Type error: Property 'count' does not exist on type '{ readonly id: "orders"; readonly label: "My Orders"; readonly icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; readonly count: number; } | { ...; } | { ...; }'.
+
+  76 |               { id: "addresses", label: "Addresses", icon: MapPin, count: addresses.length },
+  77 |               { id: "account", label: "Account Settings", icon: User },
+> 78 |             ] as const).map(({ id, label, icon: Icon, count }) => (
+     |                                                       ^
+  79 |               <button
+  80 |                 key={id}
+  81 |                 onClick={() => setTab(id)}
+Next.js build worker exited with code: 1 and signal: null
+
+
+
+
+
+Compiled successfully in 17.0s Linting and checking validity of types ..Failed to compile. ./app/(shop)/checkout/page.tsx:228:81 Type error: Property 'addressType' does not exist on type 'Address'. 226 | <div className="flex items-center gap-2"> 227 | <span className="font-body text-sm font-semibold text-charcoal-800">{addr.name}</span> > 228 | <span className="badge-gray text-[10px]">{addr?.addressType || "HOME"}</span> | ^ 229 | {addr.isDefault && <span className="badge-brand text-[10px]">Default</span>} 230 | </div> 231 | <p className="font-body text-sm text-charcoal-600 mt-1">{addr.line1}{addr.line2 ? , ${addr.line2} : ""}</p> Next.js build worker exited with code: 1 and signal: null
+
+
+
+
+
+
+
+
+Without this, your webhook signature verification will fail silently in production.
+
+🚀 Before deploying checklist
+ Set real RAZORPAY_WEBHOOK_SECRET in Vercel env vars
+ Fix SMTP TLS in lib/email.ts
+ Add .env to .gitignore
+ Run npx prisma db push on production DB
+ Set webhook URL in Razorpay dashboard → https://yourdomain.com/api/payments/webhook
+ Switch Razorpay from test keys to live keys
+Once those 3 things are fixed, this is genuinely production-ready for a medium ecommerce store (up to ~50k orders/month easily).
