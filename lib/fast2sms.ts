@@ -8,7 +8,7 @@ export async function sendOTPViaSMS(phone: string, otp: string): Promise<boolean
   const apiKey = process.env.FAST2SMS_API_KEY;
   if (!apiKey) throw new Error("FAST2SMS_API_KEY not configured");
 
-  const message = `Your OTP for LuxeStore is ${otp}. Valid for 5 minutes. Do not share with anyone.`;
+  const message = `Your OTP for Diaasa Store is ${otp}. Valid for 5 minutes. Do not share with anyone.`;
 
   try {
     const response = await fetch("https://www.fast2sms.com/dev/bulkV2", {

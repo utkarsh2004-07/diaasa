@@ -151,7 +151,7 @@ export default function CheckoutPage() {
         amount: Math.round(data.data.amount * 100),
         currency: data.data.currency,
         order_id: data.data.razorpayOrderId,
-        name: "Luxe Store",
+        name: "Diaasa Store",
         description: `Order #${data.data.orderNumber}`,
         prefill: { name: user?.name || "", contact: user?.phone || "" },
         theme: { color: "#e08a28" },

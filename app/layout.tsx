@@ -20,14 +20,14 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Luxe Store — Premium Beauty & Skincare", template: "%s | Luxe Store" },
+  title: { default: "Diaasa Store — Premium Beauty & Skincare", template: "%s | Diaasa Store" },
   description: "Discover premium beauty, skincare and wellness products curated for you.",
   keywords: ["beauty", "skincare", "wellness", "premium", "luxury"],
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "Luxe Store",
+    siteName: "Diaasa Store",
   },
 };
 

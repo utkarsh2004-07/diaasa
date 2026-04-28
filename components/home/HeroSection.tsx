@@ -80,11 +80,17 @@ export default function HeroSection({ banners }: Props) {
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             className="w-full"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+            {/* Desktop image */}
             <img
               src={slides[current].image}
               alt={slides[current].title || "Banner"}
-              className="w-full h-auto block"
+              className="w-full h-auto block hidden sm:block"
+            />
+            {/* Mobile image — uses mobileImage if set, falls back to desktop image */}
+            <img
+              src={slides[current].mobileImage || slides[current].image}
+              alt={slides[current].title || "Banner"}
+              className="w-full h-auto block sm:hidden"
             />
             {(slides[current].title || slides[current].link) && (
               <>

@@ -33,7 +33,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     <>
       <div className="p-5 border-b border-charcoal-800 flex items-center justify-between">
         <div>
-          <span className="font-display text-2xl font-light tracking-[0.25em] text-white">LUXE</span>
+          <span className="font-display text-2xl font-light tracking-[0.25em] text-white">DIAASA</span>
           <p className="text-[10px] tracking-widest text-charcoal-500 uppercase mt-0.5">Admin Panel</p>
         </div>
         <button onClick={() => setSidebarOpen(false)} className="md:hidden text-charcoal-400 hover:text-white">

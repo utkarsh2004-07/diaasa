@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import { BenefitsBar, CategoryStrip, FeaturedProducts } from "@/components/home/HomeComponents";
 import { BestSellers, NewArrivals, PromoSection, Testimonials, InstagramGrid } from "@/components/home/SectionComponents";
+import { LabTestedSection } from "@/components/home/LabTestedSection";
 
 const getHomeData = unstable_cache(
   async () => {
@@ -71,6 +72,7 @@ export default async function HomePage() {
         <BestSellers products={data.bestSellers.map(mapProduct)} />
         <NewArrivals products={data.newArrivals.map(mapProduct)} />
         <Testimonials reviews={data.reviews} />
+        <LabTestedSection />
         <InstagramGrid posts={data.socialPosts} />
       </main>
       <Footer />

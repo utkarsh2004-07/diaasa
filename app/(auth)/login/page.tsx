@@ -142,7 +142,7 @@ export default function LoginPage() {
       >
         {/* Header strip */}
         <div className="bg-charcoal-900 px-8 py-8 text-center">
-          <span className="font-display text-3xl font-light tracking-[0.3em] text-white">LUXE</span>
+          <span className="font-display text-3xl font-light tracking-[0.3em] text-white">DIAASA</span>
           <p className="mt-1 font-body text-xs tracking-widest uppercase text-charcoal-400">Store</p>
         </div>
 

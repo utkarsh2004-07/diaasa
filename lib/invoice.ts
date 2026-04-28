@@ -29,7 +29,7 @@ export async function generateInvoiceBuffer(data: InvoiceData): Promise<Buffer> 
     doc.on("error", reject);
 
     // ── Header ──
-    doc.fillColor("#1a1714").fontSize(24).font("Helvetica-Bold").text("LUXE STORE", 50, 50);
+    doc.fillColor("#1a1714").fontSize(24).font("Helvetica-Bold").text("DIAASA STORE", 50, 50);
     doc.fontSize(10).font("Helvetica").fillColor("#8a847d").text("Premium Beauty & Skincare", 50, 78);
 
     doc.fillColor("#e08a28").fontSize(20).font("Helvetica-Bold").text("INVOICE", 400, 50, { align: "right" });
@@ -104,7 +104,7 @@ export async function generateInvoiceBuffer(data: InvoiceData): Promise<Buffer> 
 
     // ── Footer ──
     doc.fillColor("#cac5be").fontSize(8).font("Helvetica")
-      .text("Thank you for shopping with Luxe Store!", 50, 750, { align: "center", width: 495 })
+      .text("Thank you for shopping with Diaasa Store!", 50, 750, { align: "center", width: 495 })
       .text("This is a computer-generated invoice and does not require a signature.", 50, 763, { align: "center", width: 495 });
 
     doc.end();

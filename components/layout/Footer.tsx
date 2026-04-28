@@ -5,9 +5,9 @@ import { Instagram, Twitter, Youtube, Facebook } from "lucide-react";
 const links = {
   "Quick Links": [
     { label: "About Us", href: "/pages/about" },
-    { label: "Blog", href: "/blog" },
+    { label: "Lab Certificate", href: "/lab-certificate" },
+    // { label: "Blog", href: "/blog" },
     { label: "Careers", href: "/pages/careers" },
-    { label: "Press", href: "/pages/press" },
   ],
   "Customer Care": [
     { label: "Track Order", href: "/orders" },
@@ -109,7 +109,7 @@ export default function Footer() {
       <div className="border-t border-charcoal-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="font-body text-xs text-charcoal-500">
-            © {new Date().getFullYear()} Luxe Store. All rights reserved.
+            © {new Date().getFullYear()} Diaasa Store. All rights reserved.
           </p>
           <div className="flex items-center gap-3">
             {["visa", "mastercard", "upi", "razorpay"].map((m) => (

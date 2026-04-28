@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, Star, ChevronRight, Minus, Plus,
-  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown,
+  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown, FlaskConical, ExternalLink,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
@@ -404,6 +404,23 @@ export default function ProductDetail({ product, coupons, related }: Props) {
             ))}
           </div>
 
+          {/* Lab Tested Certificate badge */}
+          <a
+            href="/images/Diaasa enterprises.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 flex items-center gap-3 p-3 rounded-xl border border-green-200 bg-green-50 hover:bg-green-100 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+              <FlaskConical size={18} className="text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-body text-sm font-semibold text-green-800 leading-tight">Lab Tested &amp; Certified</p>
+              <p className="font-body text-xs text-green-600 mt-0.5">View official lab test certificate</p>
+            </div>
+            <ExternalLink size={14} className="text-green-500 shrink-0 group-hover:text-green-700 transition-colors" />
+          </a>
+
           {/* Why You'll Love It — right after trust badges */}
           <WhyWeLoveAccordion items={whyItems} />
         </div>
@@ -492,6 +509,54 @@ export default function ProductDetail({ product, coupons, related }: Props) {
             </div>
           </FullAccordion>
         )}
+
+        {/* Lab Certificate */}
+        <FullAccordion title="Lab Tested Certificate">
+          <div className="flex flex-col sm:flex-row items-start gap-6">
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center gap-2">
+                <FlaskConical size={20} className="text-green-600 shrink-0" />
+                <p className="font-body text-sm font-semibold text-charcoal-800">Certified by Accredited Laboratory</p>
+              </div>
+              <p className="font-body text-sm text-charcoal-600 leading-relaxed">
+                All our products are independently tested by certified laboratories to ensure purity, safety, and quality. Our lab reports confirm that every product meets the highest standards before reaching you.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {["Dermatologically Tested", "No Harmful Chemicals", "Quality Assured", "Safe Ingredients"].map((tag) => (
+                  <span key={tag} className="font-body text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+                    ✓ {tag}
+                  </span>
+                ))}
+              </div>
+              <a
+                href="/images/Diaasa enterprises.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mt-3 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-body text-sm font-medium rounded-full transition-colors"
+              >
+                <FlaskConical size={15} />
+                View Lab Certificate (PDF)
+                <ExternalLink size={13} />
+              </a>
+            </div>
+            {/* PDF preview box */}
+            <div className="w-full sm:w-48 shrink-0">
+              <a
+                href="/images/Diaasa enterprises.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block relative w-full h-60 rounded-2xl overflow-hidden border-2 border-green-200 bg-green-50 hover:border-green-400 transition-colors group"
+              >
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                  <FlaskConical size={36} className="text-green-400 group-hover:text-green-600 transition-colors" />
+                  <p className="font-body text-xs font-semibold text-green-700 text-center px-3">Lab Test Report</p>
+                  <p className="font-body text-[10px] text-green-500 text-center px-3">Diaasa Enterprises</p>
+                  <span className="mt-2 font-body text-[10px] text-white bg-green-500 px-3 py-1 rounded-full">Click to View PDF</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </FullAccordion>
 
         {/* Customer Reviews */}
         <FullAccordion
