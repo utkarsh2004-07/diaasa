@@ -1,4 +1,4 @@
-# 🛍️ Luxe Store — Complete Integration & Deployment Guide
+# 🛍️ Diaasa Store — Complete Integration & Deployment Guide
 
 ---
 
@@ -49,7 +49,7 @@ DATABASE_URL="mysql://appuser:apppass@localhost:3306/ecommerce"
 
 # ── NEXT.JS ───────────────────────────────
 NEXT_PUBLIC_APP_URL="https://yourdomain.com"
-NEXT_PUBLIC_APP_NAME="Luxe Store"
+NEXT_PUBLIC_APP_NAME="Diaasa Store"
 
 # ── JWT ───────────────────────────────────
 # Generate: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
