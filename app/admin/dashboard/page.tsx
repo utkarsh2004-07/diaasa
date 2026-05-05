@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { TAGS } from "@/lib/cache";
