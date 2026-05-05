@@ -1,18 +1,18 @@
-import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export default async function sitemap() {
-  const [products, categories] = await Promise.all([
-    prisma.product.findMany({
-      where: { isActive: true },
-      select: { slug: true, updatedAt: true },
-    }),
-    prisma.category.findMany({
-      where: { isActive: true },
-      select: { slug: true, updatedAt: true },
-    }),
-  ]);
+  let products: { slug: string; updatedAt: Date }[] = [];
+  let categories: { slug: string; updatedAt: Date }[] = [];
+
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    [products, categories] = await Promise.all([
+      prisma.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+      prisma.category.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+    ]);
+  } catch {}
 
   const staticPages = [
     { url: APP_URL, lastModified: new Date(), priority: 1.0 },
