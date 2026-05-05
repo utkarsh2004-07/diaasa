@@ -169,7 +169,7 @@ export default function LoginPage() {
                 <form onSubmit={handleSendOTP} className="space-y-4">
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                      <span className="font-body text-sm font-medium text-charcoal-700">🇮🇳 +91</span>
+                      <span className="font-body text-sm font-medium text-charcoal-700 whitespace-nowrap">🇮🇳 +91</span>
                       <div className="w-px h-5 bg-charcoal-200" />
                     </div>
                     <input
@@ -177,7 +177,7 @@ export default function LoginPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="10-digit mobile number"
-                      className="input-base pl-24 text-base tracking-widest"
+                      className="input-base pl-[88px] text-base tracking-widest"
                       autoFocus
                       maxLength={10}
                     />

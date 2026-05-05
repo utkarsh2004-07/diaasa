@@ -146,25 +146,25 @@ function CouponStrip({ coupons }: { coupons: Coupon[] }) {
         <Tag size={13} className="text-brand-600" />
         <span className="font-body text-xs font-semibold text-brand-700 uppercase tracking-wide">Available Offers</span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {coupons.map((c) => (
-          <div key={c.code} className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="font-mono text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-md shrink-0">
+          <div key={c.code} className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-xs font-bold text-brand-700 bg-white border border-brand-200 px-2 py-0.5 rounded-md">
                 {c.code}
               </span>
-              <span className="font-body text-xs text-charcoal-600 truncate">
-                {c.description || (c.type === "PERCENTAGE" ? `${c.value}% off` : `₹${c.value} off`)}
-                {c.minCartValue > 0 && ` on ₹${c.minCartValue}+`}
-              </span>
+              <button
+                onClick={() => copy(c.code)}
+                className="shrink-0 flex items-center gap-1 font-body text-[11px] font-semibold text-brand-600 hover:text-brand-800 transition-colors"
+              >
+                {copied === c.code ? <Check size={12} /> : <Copy size={12} />}
+                {copied === c.code ? "Copied" : "Copy"}
+              </button>
             </div>
-            <button
-              onClick={() => copy(c.code)}
-              className="shrink-0 flex items-center gap-1 font-body text-[11px] font-semibold text-brand-600 hover:text-brand-800 transition-colors"
-            >
-              {copied === c.code ? <Check size={12} /> : <Copy size={12} />}
-              {copied === c.code ? "Copied" : "Copy"}
-            </button>
+            <span className="font-body text-xs text-charcoal-600">
+              {c.description || (c.type === "PERCENTAGE" ? `${c.value}% off` : `₹${c.value} off`)}
+              {c.minCartValue > 0 && ` on ₹${c.minCartValue}+`}
+            </span>
           </div>
         ))}
       </div>
@@ -261,14 +261,14 @@ export default function ProductDetail({ product, coupons, related }: Props) {
             )}
           </div>
 
-          {/* Thumbnails — horizontal scroll on mobile, wrap on desktop */}
+          {/* Thumbnails */}
           {product.images.length > 1 && (
-            <div className="flex gap-2 mt-3 overflow-x-auto pb-1 scrollbar-hide">
+            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mt-3">
               {product.images.map((img, i) => (
                 <button
                   key={img.id}
                   onClick={() => setSelectedImg(i)}
-                  className={`relative shrink-0 w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all ${
                     i === selectedImg
                       ? "border-brand-500 shadow-sm"
                       : "border-transparent hover:border-charcoal-200"
@@ -279,7 +279,7 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                     alt={img.altText || product.name}
                     fill
                     className="object-contain"
-                    sizes="72px"
+                    sizes="80px"
                   />
                 </button>
               ))}
@@ -360,33 +360,33 @@ export default function ProductDetail({ product, coupons, related }: Props) {
           )}
 
           {/* Qty + CTA */}
-          <div className="mt-5 flex items-center gap-3">
-            <div className="flex items-center border border-charcoal-200 rounded-full overflow-hidden shrink-0">
-              <button onClick={() => setQty(Math.max(1, qty - 1))} className="qty-btn border-0 rounded-none">
-                <Minus size={14} />
-              </button>
-              <span className="w-10 text-center font-body text-sm font-medium text-charcoal-900">{qty}</span>
-              <button onClick={() => setQty(Math.min(selectedVariant.stock, qty + 1))} className="qty-btn border-0 rounded-none">
-                <Plus size={14} />
+          <div className="mt-5 space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center border border-charcoal-200 rounded-full overflow-hidden shrink-0">
+                <button onClick={() => setQty(Math.max(1, qty - 1))} className="qty-btn border-0 rounded-none">
+                  <Minus size={14} />
+                </button>
+                <span className="w-10 text-center font-body text-sm font-medium text-charcoal-900">{qty}</span>
+                <button onClick={() => setQty(Math.min(selectedVariant.stock, qty + 1))} className="qty-btn border-0 rounded-none">
+                  <Plus size={14} />
+                </button>
+              </div>
+              <button
+                onClick={() => toggle(product.id)}
+                className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-200 shrink-0 ${
+                  wishlisted ? "border-red-300 bg-red-50 text-red-500" : "border-charcoal-200 hover:border-red-300 hover:text-red-400"
+                }`}
+              >
+                <Heart size={18} className={wishlisted ? "fill-current" : ""} />
               </button>
             </div>
             <button
               onClick={handleAddToCart}
               disabled={adding || selectedVariant.stock === 0}
-              className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5 min-w-0"
+              className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-base"
             >
               <ShoppingBag size={18} />
-              <span className="truncate">
-                {adding ? "Adding…" : selectedVariant.stock === 0 ? "Out of Stock" : "Add to Bag"}
-              </span>
-            </button>
-            <button
-              onClick={() => toggle(product.id)}
-              className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-200 shrink-0 ${
-                wishlisted ? "border-red-300 bg-red-50 text-red-500" : "border-charcoal-200 hover:border-red-300 hover:text-red-400"
-              }`}
-            >
-              <Heart size={18} className={wishlisted ? "fill-current" : ""} />
+              {adding ? "Adding…" : selectedVariant.stock === 0 ? "Out of Stock" : "Add to Bag"}
             </button>
           </div>
 
@@ -394,12 +394,14 @@ export default function ProductDetail({ product, coupons, related }: Props) {
           <div className="grid grid-cols-3 gap-2 mt-6 pt-6 border-t border-charcoal-100">
             {[
               { icon: Truck, text: "Free Delivery above ₹500" },
-              { icon: Shield, text: "100% Genuine Products" },
-              { icon: RefreshCw, text: "Easy 7-day Returns" },
+              { icon: Shield, text: "100% Genuine" },
+              { icon: RefreshCw, text: "7-day Returns" },
             ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex flex-col items-center gap-1.5 text-center px-1">
-                <Icon size={20} className="text-brand-500 shrink-0" />
-                <span className="font-body text-[10px] sm:text-[11px] text-charcoal-500 leading-tight">{text}</span>
+              <div key={text} className="flex flex-col items-center gap-1.5 text-center">
+                <div className="w-9 h-9 rounded-full bg-brand-50 flex items-center justify-center">
+                  <Icon size={16} className="text-brand-500" />
+                </div>
+                <span className="font-body text-[10px] sm:text-xs text-charcoal-500 leading-tight">{text}</span>
               </div>
             ))}
           </div>

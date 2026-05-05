@@ -18,24 +18,24 @@ export async function GET(request: NextRequest) {
     const productId = searchParams.get("productId");
     if (!productId) return errorResponse("VALIDATION_ERROR", "productId required");
 
-    const reviews = await prisma.review.findMany({
-      where: { productId, status: "APPROVED" },
-      include: { user: { select: { name: true, avatar: true } } },
-      orderBy: { createdAt: "desc" },
-      take: 20,
-    });
-
-    const agg = await prisma.review.aggregate({
-      where: { productId, status: "APPROVED" },
-      _avg: { rating: true },
-      _count: true,
-    });
-
-    const distribution = await prisma.review.groupBy({
-      by: ["rating"],
-      where: { productId, status: "APPROVED" },
-      _count: true,
-    });
+    const [reviews, agg, distribution] = await Promise.all([
+      prisma.review.findMany({
+        where: { productId, status: "APPROVED" },
+        include: { user: { select: { name: true, avatar: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
+      prisma.review.aggregate({
+        where: { productId, status: "APPROVED" },
+        _avg: { rating: true },
+        _count: true,
+      }),
+      prisma.review.groupBy({
+        by: ["rating"],
+        where: { productId, status: "APPROVED" },
+        _count: true,
+      }),
+    ]);
 
     return successResponse({
       reviews,
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
         {} as Record<number, number>
       ),
     });
-  } catch (error) {
+  } catch {
     return serverErrorResponse();
   }
 }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     if (!session) return unauthorizedResponse();
 
-    const rl = await rateLimitReview(session.userId);
+    const rl = rateLimitReview(session.userId);
     if (!rl.allowed) return errorResponse("RATE_LIMIT_EXCEEDED", "Too many reviews submitted", 429);
 
     const body = await request.json();

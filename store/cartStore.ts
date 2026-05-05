@@ -110,7 +110,7 @@ export const useCartStore = create<CartState>()(
       clearCart: () => set({ items: [], count: 0, subtotal: 0, totalGST: 0, total: 0 }),
     }),
     {
-      name: "luxe-cart",
+      name: "diaasa-cart",
       partialize: (s) => ({ guestCartId: s.guestCartId }),
     }
   )

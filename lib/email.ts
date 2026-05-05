@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const STORE_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Luxe Store";
+const STORE_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Diaasa Store";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 function baseTemplate(content: string) {

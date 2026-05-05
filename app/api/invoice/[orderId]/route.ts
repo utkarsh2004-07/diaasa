@@ -60,7 +60,7 @@ export async function GET(
     });
 
     // Stream PDF directly to browser — saves to user's PC, nothing stored on server
-    return new NextResponse(buffer, {
+    return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

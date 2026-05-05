@@ -28,11 +28,11 @@ export async function POST(request: NextRequest) {
     const ip = getClientIP(request);
 
     // Rate limit by IP
-    const ipLimit = await rateLimitByIP(ip, "otp-send", 10);
+    const ipLimit = rateLimitByIP(ip, "otp-send", 10);
     if (!ipLimit.allowed) return rateLimitResponse();
 
     // Rate limit by phone
-    const phoneLimit = await rateLimitOTPSend(phone);
+    const phoneLimit = rateLimitOTPSend(phone);
     if (!phoneLimit.allowed) {
       return errorResponse(
         "RATE_LIMIT_EXCEEDED",

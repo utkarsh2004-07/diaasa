@@ -49,6 +49,6 @@ export const useWishlistStore = create<WishlistState>()(
         } catch {}
       },
     }),
-    { name: "luxe-wishlist", partialize: (s) => ({ ids: s.ids }) }
+    { name: "diaasa-wishlist", partialize: (s) => ({ ids: s.ids }) }
   )
 );

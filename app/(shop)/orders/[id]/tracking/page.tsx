@@ -27,16 +27,12 @@ export default async function OrderTrackingPage({
 
   const order = await prisma.order.findFirst({
     where: { id, userId: session.userId },
-    include: {
-      items: { take: 3 },
-      address: true,
-    },
     select: {
       id: true, orderNumber: true, status: true, createdAt: true,
       cancelReason: true, notes: true, awbCode: true, trackingUrl: true,
       items: { take: 3, select: { name: true } },
       address: true,
-    } as any,
+    },
   });
 
   if (!order) notFound();

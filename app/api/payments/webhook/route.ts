@@ -21,17 +21,20 @@ export async function POST(request: NextRequest) {
 
       const order = await prisma.order.findFirst({
         where: { razorpayOrderId: rzpOrderId },
+        select: { id: true, paymentStatus: true },
       });
 
       if (order && order.paymentStatus !== "PAID") {
-        await prisma.order.update({
-          where: { id: order.id },
-          data: { status: "CONFIRMED", paymentStatus: "PAID", razorpayPaymentId: payment.id },
-        });
-        await prisma.payment.updateMany({
-          where: { orderId: order.id },
-          data: { status: "PAID", razorpayPaymentId: payment.id, method: payment.method },
-        });
+        await prisma.$transaction([
+          prisma.order.update({
+            where: { id: order.id },
+            data: { status: "CONFIRMED", paymentStatus: "PAID", razorpayPaymentId: payment.id },
+          }),
+          prisma.payment.updateMany({
+            where: { orderId: order.id },
+            data: { status: "PAID", razorpayPaymentId: payment.id, method: payment.method },
+          }),
+        ]);
       }
     }
 
@@ -39,20 +42,25 @@ export async function POST(request: NextRequest) {
       const payment = payload.payment.entity;
       const rzpOrderId = payment.order_id;
 
-      const order = await prisma.order.findFirst({ where: { razorpayOrderId: rzpOrderId } });
+      const order = await prisma.order.findFirst({
+        where: { razorpayOrderId: rzpOrderId },
+        select: { id: true, paymentStatus: true },
+      });
       if (order && order.paymentStatus === "PENDING") {
-        await prisma.order.update({
-          where: { id: order.id },
-          data: { paymentStatus: "FAILED" },
-        });
-        await prisma.payment.updateMany({
-          where: { orderId: order.id },
-          data: {
-            status: "FAILED",
-            errorCode: payment.error_code,
-            errorDesc: payment.error_description,
-          },
-        });
+        await prisma.$transaction([
+          prisma.order.update({
+            where: { id: order.id },
+            data: { paymentStatus: "FAILED" },
+          }),
+          prisma.payment.updateMany({
+            where: { orderId: order.id },
+            data: {
+              status: "FAILED",
+              errorCode: payment.error_code,
+              errorDesc: payment.error_description,
+            },
+          }),
+        ]);
       }
     }
 

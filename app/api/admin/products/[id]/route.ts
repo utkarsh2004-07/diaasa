@@ -36,8 +36,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
           },
         }),
       },
+      select: { id: true, slug: true, name: true },
     });
-    revalidateTag(TAGS.products);
+    revalidateTag(TAGS.products, "max");
+    revalidateTag(TAGS.product(product.slug), "max");
     return successResponse({ product }, "Product updated");
   } catch (error) {
     console.error("product PATCH error:", error);
@@ -50,14 +52,18 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     const session = await requireAdmin().catch(() => null);
     if (!session) return unauthorizedResponse();
     const { id } = await params;
-    await prisma.productImage.deleteMany({ where: { productId: id } });
-    await prisma.cartItem.deleteMany({ where: { productId: id } });
-    await prisma.wishlist.deleteMany({ where: { productId: id } });
-    await prisma.review.deleteMany({ where: { productId: id } });
-    await prisma.orderItem.deleteMany({ where: { productId: id } });
-    await prisma.productVariant.deleteMany({ where: { productId: id } });
-    await prisma.product.delete({ where: { id } });
-    revalidateTag(TAGS.products);
+    const product = await prisma.product.findUnique({ where: { id }, select: { slug: true } });
+    await prisma.$transaction([
+      prisma.productImage.deleteMany({ where: { productId: id } }),
+      prisma.cartItem.deleteMany({ where: { productId: id } }),
+      prisma.wishlist.deleteMany({ where: { productId: id } }),
+      prisma.review.deleteMany({ where: { productId: id } }),
+      prisma.orderItem.deleteMany({ where: { productId: id } }),
+      prisma.productVariant.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } }),
+    ]);
+    revalidateTag(TAGS.products, "max");
+    if (product?.slug) revalidateTag(TAGS.product(product.slug), "max");
     return successResponse({}, "Product deleted");
   } catch { return serverErrorResponse(); }
 }

@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken, type JWTPayload } from "./jwt";
 import { prisma } from "./prisma";
 
-export const AUTH_COOKIE = "luxe_auth";
+export const AUTH_COOKIE = "diaasa_auth";
 export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

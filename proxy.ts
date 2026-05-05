@@ -9,7 +9,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith("/admin")) {
-    const token = request.cookies.get("luxe_auth")?.value;
+    const token = request.cookies.get("diaasa_auth")?.value;
 
     if (!token) {
       return NextResponse.redirect(new URL("/login?redirect=/admin", request.url));
@@ -27,7 +27,7 @@ export async function proxy(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isProtected) {
-    const token = request.cookies.get("luxe_auth")?.value;
+    const token = request.cookies.get("diaasa_auth")?.value;
 
     if (!token) {
       const loginUrl = new URL("/login", request.url);
@@ -40,9 +40,8 @@ export async function proxy(request: NextRequest) {
     if (!payload) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-
       const response = NextResponse.redirect(loginUrl);
-      response.cookies.delete("luxe_auth");
+      response.cookies.delete("diaasa_auth");
       return response;
     }
   }
@@ -50,11 +49,10 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = PUBLIC_AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
   if (isAuthPage) {
-    const token = request.cookies.get("luxe_auth")?.value;
+    const token = request.cookies.get("diaasa_auth")?.value;
 
     if (token) {
       const payload = await verifyToken(token);
-
       if (payload) {
         const redirect = request.nextUrl.searchParams.get("redirect") || "/";
         return NextResponse.redirect(new URL(redirect, request.url));

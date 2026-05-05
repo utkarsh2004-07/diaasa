@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent") || "";
 
     // Rate limit
-    const limit = await rateLimitOTPVerify(phone);
+    const limit = rateLimitOTPVerify(phone);
     if (!limit.allowed) return rateLimitResponse();
 
     // Find latest valid OTP
@@ -115,28 +115,21 @@ export async function POST(request: NextRequest) {
       sessionId: session.id,
     });
 
-    // Merge guest cart — handle duplicates properly
+    // Merge guest cart atomically
     if (guestCartId) {
       const guestItems = await prisma.cartItem.findMany({
         where: { guestId: guestCartId, userId: null },
+        select: { id: true, variantId: true, productId: true, quantity: true },
       });
       for (const guestItem of guestItems) {
-        const existing = await prisma.cartItem.findFirst({
-          where: { userId: user.id, variantId: guestItem.variantId },
-        });
-        if (existing) {
-          // Merge quantities, cap at 10
-          await prisma.cartItem.update({
-            where: { id: existing.id },
-            data: { quantity: Math.min(existing.quantity + guestItem.quantity, 10) },
-          });
-          await prisma.cartItem.delete({ where: { id: guestItem.id } });
-        } else {
-          await prisma.cartItem.update({
-            where: { id: guestItem.id },
-            data: { userId: user.id, guestId: null },
-          });
-        }
+        await prisma.$transaction([
+          prisma.cartItem.upsert({
+            where: { userId_variantId: { userId: user.id, variantId: guestItem.variantId } },
+            update: { quantity: { increment: guestItem.quantity } },
+            create: { userId: user.id, productId: guestItem.productId, variantId: guestItem.variantId, quantity: guestItem.quantity },
+          }),
+          prisma.cartItem.delete({ where: { id: guestItem.id } }),
+        ]);
       }
     }
 

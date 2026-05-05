@@ -321,13 +321,13 @@ export default function Header() {
               transition={{ type: "spring", stiffness: 350, damping: 35 }}
               className="fixed left-0 top-0 bottom-0 z-50 w-72 bg-white shadow-strong overflow-y-auto"
             >
-              <div className="flex items-center justify-between p-4 border-b border-charcoal-100">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-charcoal-100">
                 <Image
                   src="https://res.cloudinary.com/dqx1vrmsp/image/upload/v1776678349/WhatsApp_Image_2026-04-20_at_2.14.09_PM-removebg-preview_sfgngq.png"
                   alt="Logo"
-                  width={200}
-                  height={68}
-                  className="h-[68px] w-[200px] object-contain"
+                  width={260}
+                  height={90}
+                  className="h-[90px] w-auto object-contain"
                 />
                 <button
                   onClick={() => setMobileOpen(false)}

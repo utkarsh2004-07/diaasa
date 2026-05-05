@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     if (!session) return unauthorizedResponse();
 
-    const rl = await rateLimitCoupon(session.userId);
+    const rl = rateLimitCoupon(session.userId);
     if (!rl.allowed) return errorResponse("RATE_LIMIT_EXCEEDED", "Too many coupon attempts", 429);
 
     const { code, cartTotal } = await request.json();

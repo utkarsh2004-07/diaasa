@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limit: max 5 orders per user per hour
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    const rl = await checkRateLimit({ key: `checkout:${session.userId}:${ip}`, limit: 5, windowMs: 60 * 60 * 1000 });
+    const rl = checkRateLimit({ key: `checkout:${session.userId}:${ip}`, limit: 5, windowMs: 60 * 60 * 1000 });
     if (!rl.allowed) return errorResponse("RATE_LIMIT", "Too many orders. Please try again later.", 429);
 
     const body = await request.json();

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const post = await prisma.socialPost.create({
       data: { type: type || "IMAGE", url, link: link || null, caption: caption || null, sortOrder: sortOrder || 0 },
     });
-    revalidateTag(TAGS.socialPosts);
+    revalidateTag(TAGS.socialPosts, "max");
     return successResponse({ post }, "Post added", 201);
   } catch { return serverErrorResponse(); }
 }
@@ -37,7 +37,7 @@ export async function PATCH(request: NextRequest) {
     const { id, ...data } = body;
     if (!id) return errorResponse("VALIDATION_ERROR", "id is required");
     const post = await prisma.socialPost.update({ where: { id }, data });
-    revalidateTag(TAGS.socialPosts);
+    revalidateTag(TAGS.socialPosts, "max");
     return successResponse({ post }, "Post updated");
   } catch { return serverErrorResponse(); }
 }
@@ -49,7 +49,7 @@ export async function DELETE(request: NextRequest) {
     const id = new URL(request.url).searchParams.get("id");
     if (!id) return errorResponse("VALIDATION_ERROR", "id is required");
     await prisma.socialPost.delete({ where: { id } });
-    revalidateTag(TAGS.socialPosts);
+    revalidateTag(TAGS.socialPosts, "max");
     return successResponse({}, "Post deleted");
   } catch { return serverErrorResponse(); }
 }

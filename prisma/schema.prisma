@@ -189,6 +189,9 @@ model Product {
   @@index([slug])
   @@index([categoryId])
   @@index([isActive, isFeatured])
+  @@index([isActive, categoryId])
+  @@index([isActive, isBestSeller])
+  @@index([isActive, isNew])
   @@map("products")
 }
 
@@ -262,6 +265,8 @@ model CartItem {
   product Product         @relation(fields: [productId], references: [id])
   variant ProductVariant  @relation(fields: [variantId], references: [id])
 
+  @@unique([userId, variantId])
+  @@unique([guestId, variantId])
   @@index([userId])
   @@index([guestId])
   @@map("cart_items")
@@ -462,7 +467,7 @@ enum CouponType {
 
 model Banner {
   id           String     @id @default(cuid())
-  title        String
+  title        String     @default("")
   image        String
   mobileImage  String?
   link         String?

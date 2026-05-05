@@ -91,24 +91,26 @@ export async function POST(request: NextRequest) {
 
     const where = session
       ? { userId: session.userId, variantId }
-      : { guestId: guestCartId, variantId };
+      : { guestId: guestCartId || "", variantId };
 
-    const existing = await prisma.cartItem.findFirst({ where });
+    if (!session && !guestCartId)
+      return errorResponse("VALIDATION_ERROR", "guestCartId required for guest cart");
 
+    // Use findFirst+update/create as safe fallback (works even if unique constraint not yet in client)
+    const existingWhere = session
+      ? { userId: session.userId, variantId }
+      : { guestId: guestCartId!, variantId };
+
+    const existing = await prisma.cartItem.findFirst({ where: existingWhere });
     if (existing) {
-      const newQty = Math.min(existing.quantity + quantity, 10);
-      if (variant.stock < newQty)
-        return errorResponse("INSUFFICIENT_STOCK", "Not enough stock available");
       await prisma.cartItem.update({
         where: { id: existing.id },
-        data: { quantity: newQty },
+        data: { quantity: Math.min(existing.quantity + quantity, 10) },
       });
     } else {
       await prisma.cartItem.create({
         data: {
-          productId,
-          variantId,
-          quantity,
+          productId, variantId, quantity,
           userId: session?.userId || null,
           guestId: session ? null : (guestCartId || null),
         },
@@ -125,18 +127,14 @@ export async function POST(request: NextRequest) {
 // PATCH /api/cart - update quantity
 export async function PATCH(request: NextRequest) {
   try {
-    const { itemId, quantity } = await request.json();
+    const { itemId, quantity, guestCartId } = await request.json();
     const session = await getServerSession();
 
-    const item = await prisma.cartItem.findUnique({ where: { id: itemId } });
+    const item = await prisma.cartItem.findUnique({ where: { id: itemId }, select: { id: true, userId: true, guestId: true } });
     if (!item) return errorResponse("NOT_FOUND", "Cart item not found");
 
-    // Ownership check
-    const isOwner = session
-      ? item.userId === session.userId
-      : true; // guest checks via guestId
-
-    if (!isOwner) return errorResponse("FORBIDDEN", "Forbidden");
+    const isOwner = session ? item.userId === session.userId : item.guestId === guestCartId;
+    if (!isOwner) return errorResponse("FORBIDDEN", "Forbidden", 403);
 
     if (quantity <= 0) {
       await prisma.cartItem.delete({ where: { id: itemId } });
@@ -156,7 +154,15 @@ export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get("itemId");
+    const guestCartId = searchParams.get("guestId");
     if (!itemId) return errorResponse("VALIDATION_ERROR", "itemId required");
+
+    const session = await getServerSession();
+    const item = await prisma.cartItem.findUnique({ where: { id: itemId }, select: { userId: true, guestId: true } });
+    if (!item) return errorResponse("NOT_FOUND", "Cart item not found", 404);
+
+    const isOwner = session ? item.userId === session.userId : item.guestId === guestCartId;
+    if (!isOwner) return errorResponse("FORBIDDEN", "Forbidden", 403);
 
     await prisma.cartItem.delete({ where: { id: itemId } });
     return successResponse({}, "Item removed from cart");

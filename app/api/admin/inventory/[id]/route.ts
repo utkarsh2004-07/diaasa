@@ -13,10 +13,14 @@ export async function PATCH(
 
     const { id } = await params;
     const { stock } = await request.json();
+    const stockNum = Number(stock);
+    if (isNaN(stockNum) || stockNum < 0)
+      return successResponse({}, "Invalid stock value");
 
     const variant = await prisma.productVariant.update({
       where: { id },
-      data: { stock: Number(stock) },
+      data: { stock: stockNum },
+      select: { id: true, stock: true, name: true },
     });
 
     return successResponse({ variant }, "Stock updated");

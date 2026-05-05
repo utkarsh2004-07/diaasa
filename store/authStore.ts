@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "luxe-auth",
+      name: "diaasa-auth",
       partialize: (s) => ({ user: s.user }),
     }
   )

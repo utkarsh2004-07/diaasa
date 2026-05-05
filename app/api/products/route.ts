@@ -15,7 +15,7 @@ const getProducts = unstable_cache(
     const where: Record<string, unknown> = { isActive: true };
 
     if (category) {
-      const cat = await prisma.category.findUnique({ where: { slug: category } });
+      const cat = await prisma.category.findUnique({ where: { slug: category }, select: { id: true } });
       if (cat) where.categoryId = cat.id;
     }
     if (search) {
@@ -29,6 +29,16 @@ const getProducts = unstable_cache(
     if (featured === "true") where.isFeatured = true;
     if (newArrivals === "true") where.isNew = true;
     if (bestSeller === "true") where.isBestSeller = true;
+    if (minPrice) where.variants = { some: { price: { gte: Number(minPrice) }, isActive: true } };
+    if (maxPrice) {
+      where.variants = {
+        some: {
+          ...(where.variants as Record<string, unknown>)?.some as object,
+          price: { gte: Number(minPrice) || 0, lte: Number(maxPrice) },
+          isActive: true,
+        },
+      };
+    }
 
     const [sortField, sortDir] = sort.split("_");
     const orderBy: Record<string, string> = {};
@@ -65,14 +75,8 @@ const getProducts = unstable_cache(
       variantId: p.variants[0]?.id,
     }));
 
-    const filteredProducts = formatted.filter((p) => {
-      if (minPrice && p.price < Number(minPrice)) return false;
-      if (maxPrice && p.price > Number(maxPrice)) return false;
-      return true;
-    });
-
     return {
-      products: filteredProducts,
+      products: formatted,
       pagination: {
         page, limit, total,
         pages: Math.ceil(total / limit),

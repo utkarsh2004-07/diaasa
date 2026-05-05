@@ -36,8 +36,8 @@ export async function POST(request: NextRequest) {
         parentId: parentId || null,
       },
     });
-    revalidateTag(TAGS.categories);
-    revalidateTag(TAGS.products);
+    revalidateTag(TAGS.categories, "max");
+    revalidateTag(TAGS.products, "max");
     return successResponse({ category }, "Category created", 201);
   } catch { return serverErrorResponse(); }
 }

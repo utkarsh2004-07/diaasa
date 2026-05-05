@@ -69,7 +69,7 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
         >
           Shop by Category
         </motion.h2>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 md:gap-4">
+        <div className="flex flex-wrap justify-center gap-3 md:gap-4">
           {items.map((cat, i) => (
             <motion.div
               key={cat.id}
@@ -77,21 +77,22 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.06 }}
+              className="w-[calc(50%-8px)] sm:w-44"
             >
               <Link
                 href={`/products?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-cream-100 hover:bg-cream-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
+                className="group flex flex-col items-center gap-4 p-6 rounded-2xl bg-cream-100 hover:bg-cream-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
               >
-                <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-soft flex items-center justify-center overflow-hidden">
+                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white shadow-soft flex items-center justify-center overflow-hidden">
                   {(cat as { image?: string | null }).image ? (
-                    <Image src={(cat as { image: string }).image} alt={cat.name} width={80} height={80} className="object-cover w-full h-full rounded-full" />
+                    <Image src={(cat as { image: string }).image} alt={cat.name} width={144} height={144} className="object-cover w-full h-full rounded-full" />
                   ) : (
-                    <span className="font-display text-2xl text-charcoal-400">
+                    <span className="font-display text-4xl text-charcoal-400">
                       {cat.name.charAt(0)}
                     </span>
                   )}
                 </div>
-                <span className="font-body text-xs font-medium text-charcoal-700 text-center group-hover:text-brand-600 transition-colors">
+                <span className="font-body text-base font-semibold text-charcoal-700 text-center group-hover:text-brand-600 transition-colors">
                   {cat.name}
                 </span>
               </Link>

@@ -12,8 +12,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { id } = await params;
     const body = await request.json();
     const category = await prisma.category.update({ where: { id }, data: body });
-    revalidateTag(TAGS.categories);
-    revalidateTag(TAGS.products);
+    revalidateTag(TAGS.categories, "max");
+    revalidateTag(TAGS.products, "max");
     return successResponse({ category }, "Category updated");
   } catch { return serverErrorResponse(); }
 }
@@ -24,8 +24,8 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     if (!session) return unauthorizedResponse();
     const { id } = await params;
     await prisma.category.delete({ where: { id } });
-    revalidateTag(TAGS.categories);
-    revalidateTag(TAGS.products);
+    revalidateTag(TAGS.categories, "max");
+    revalidateTag(TAGS.products, "max");
     return successResponse({}, "Category deleted");
   } catch { return serverErrorResponse(); }
 }
