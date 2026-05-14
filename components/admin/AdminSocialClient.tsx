@@ -74,8 +74,8 @@ export default function AdminSocialClient({ posts: initial }: { posts: Post[] })
   // Extract YouTube/video embed URL
   const getVideoEmbed = (url: string) => {
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
-    return url;
+    if (yt) return { type: "iframe", src: `https://www.youtube.com/embed/${yt[1]}` };
+    return { type: "video", src: url };
   };
 
   return (
@@ -134,14 +134,26 @@ export default function AdminSocialClient({ posts: initial }: { posts: Post[] })
           <div key={post.id} className={`bg-white rounded-2xl overflow-hidden shadow-soft border ${post.isActive ? "border-charcoal-50" : "border-red-100 opacity-60"}`}>
             {/* Preview */}
             <div className="aspect-square bg-cream-100 relative">
-              {post.type === "VIDEO" ? (
-                <iframe
-                  src={getVideoEmbed(post.url)}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
+              {post.type === "VIDEO" ? (() => {
+                const v = getVideoEmbed(post.url);
+                return v.type === "iframe" ? (
+                  <iframe
+                    src={v.src}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={v.src}
+                    className="w-full h-full object-cover"
+                    muted
+                    loop
+                    playsInline
+                    controls
+                  />
+                );
+              })() : (
                 <img src={post.url} alt={post.caption || ""} className="w-full h-full object-cover" />
               )}
               <div className="absolute top-2 left-2">

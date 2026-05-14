@@ -19,11 +19,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         category: { connect: { id: categoryId } },
         ...(variants && {
           variants: {
-            deleteMany: {},
-            create: variants.map((v: { name: string; price: number; comparePrice?: number | null; stock: number; sku?: string | null }) => ({
-              name: v.name, price: Number(v.price),
-              comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
-              stock: Number(v.stock), sku: v.sku || null, isActive: true,
+            upsert: variants.map((v: { id?: string; name: string; price: number; comparePrice?: number | null; stock: number; sku?: string | null }) => ({
+              where: { id: v.id || "new" },
+              update: {
+                name: v.name, price: Number(v.price),
+                comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
+                stock: Number(v.stock), sku: v.sku || null, isActive: true,
+              },
+              create: {
+                name: v.name, price: Number(v.price),
+                comparePrice: v.comparePrice ? Number(v.comparePrice) : null,
+                stock: Number(v.stock), sku: v.sku || null, isActive: true,
+              },
             })),
           },
         }),

@@ -28,9 +28,10 @@ interface Props {
     variantId?: string;
   };
   index?: number;
+  dark?: boolean;
 }
 
-export default function ProductCard({ product, index = 0 }: Props) {
+export default function ProductCard({ product, index = 0, dark = false }: Props) {
   const [hovered, setHovered] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -166,11 +167,11 @@ export default function ProductCard({ product, index = 0 }: Props) {
         {/* Info */}
         <div className="mt-3 px-1">
           {product.brand && (
-            <p className="font-body text-[11px] text-charcoal-400 uppercase tracking-wider mb-0.5">
+            <p className={`font-body text-[11px] uppercase tracking-wider mb-0.5 ${dark ? "text-cream-300" : "text-charcoal-400"}`}>
               {product.brand}
             </p>
           )}
-          <h3 className="font-body text-sm font-medium text-charcoal-800 leading-snug group-hover:text-brand-600 transition-colors line-clamp-2">
+          <h3 className={`font-body text-sm font-medium leading-snug group-hover:text-brand-400 transition-colors line-clamp-2 ${dark ? "text-white" : "text-charcoal-800 group-hover:text-brand-600"}`}>
             {product.name}
           </h3>
           {product.reviewCount !== undefined && product.reviewCount > 0 && (
@@ -180,15 +181,15 @@ export default function ProductCard({ product, index = 0 }: Props) {
                   <Star key={s} size={11} className="star-filled fill-current" />
                 ))}
               </div>
-              <span className="font-body text-[11px] text-charcoal-400">({product.reviewCount})</span>
+              <span className={`font-body text-[11px] ${dark ? "text-cream-400" : "text-charcoal-400"}`}>({product.reviewCount})</span>
             </div>
           )}
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="font-body text-base font-semibold text-charcoal-900">
+            <span className={`font-body text-base font-semibold ${dark ? "text-white" : "text-charcoal-900"}`}>
               ₹{product.price.toLocaleString("en-IN")}
             </span>
             {product.comparePrice && (
-              <span className="font-body text-sm text-charcoal-400 line-through">
+              <span className={`font-body text-sm line-through ${dark ? "text-cream-400" : "text-charcoal-400"}`}>
                 ₹{product.comparePrice.toLocaleString("en-IN")}
               </span>
             )}

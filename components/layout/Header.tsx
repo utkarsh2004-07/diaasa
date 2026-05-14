@@ -23,10 +23,8 @@ const NAV_LINKS = [
     href: "/products",
     children: [
       { label: "All Products", href: "/products" },
-      { label: "Skincare", href: "/products?category=skincare" },
-      { label: "Haircare", href: "/products?category=haircare" },
-      { label: "Body Care", href: "/products?category=body-care" },
-      { label: "Wellness", href: "/products?category=wellness" },
+      { label: "Sunscreen", href: "/products?category=sunscreen" },
+      { label: "Bath Essential Range", href: "/products?category=bath-essential-range" },
     ],
   },
   { label: "Best Sellers", href: "/products?bestseller=true" },

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, Star, ChevronRight, Minus, Plus,
-  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown, FlaskConical, ExternalLink,
+  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown, FlaskConical, ExternalLink, ChevronLeft,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
@@ -259,30 +259,49 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                 -{discount}%
               </div>
             )}
+            {/* Prev / Next arrows on main image */}
+            {product.images.length > 1 && (
+              <>
+                <button
+                  onClick={() => setSelectedImg((i) => (i - 1 + product.images.length) % product.images.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition-colors"
+                >
+                  <ChevronLeft size={18} className="text-charcoal-700" />
+                </button>
+                <button
+                  onClick={() => setSelectedImg((i) => (i + 1) % product.images.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow flex items-center justify-center hover:bg-white transition-colors"
+                >
+                  <ChevronRight size={18} className="text-charcoal-700" />
+                </button>
+              </>
+            )}
           </div>
 
-          {/* Thumbnails */}
+          {/* Thumbnails with prev/next arrows */}
           {product.images.length > 1 && (
-            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2 mt-3">
-              {product.images.map((img, i) => (
-                <button
-                  key={img.id}
-                  onClick={() => setSelectedImg(i)}
-                  className={`relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                    i === selectedImg
-                      ? "border-brand-500 shadow-sm"
-                      : "border-transparent hover:border-charcoal-200"
-                  }`}
-                >
-                  <Image
-                    src={img.url}
-                    alt={img.altText || product.name}
-                    fill
-                    className="object-contain"
-                    sizes="80px"
-                  />
-                </button>
-              ))}
+            <div className="relative mt-3">
+              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                {product.images.map((img, i) => (
+                  <button
+                    key={img.id}
+                    onClick={() => setSelectedImg(i)}
+                    className={`relative w-full aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                      i === selectedImg
+                        ? "border-brand-500 shadow-sm"
+                        : "border-transparent hover:border-charcoal-200"
+                    }`}
+                  >
+                    <Image
+                      src={img.url}
+                      alt={img.altText || product.name}
+                      fill
+                      className="object-contain"
+                      sizes="80px"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

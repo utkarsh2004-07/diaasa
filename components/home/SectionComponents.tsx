@@ -48,7 +48,7 @@ export function NewArrivals({ products }: { products: ProductProps[] }) {
           <Link href="/products?new=true" className="btn-outline border-charcoal-600 text-cream-200 hover:border-brand-400 hover:text-brand-400 text-sm hidden sm:inline-flex">See All</Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
-          {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} dark />)}
         </div>
       </div>
     </section>
@@ -178,8 +178,9 @@ interface SocialPost {
 export function InstagramGrid({ posts }: { posts: SocialPost[] }) {
   const getVideoEmbed = (url: string) => {
     const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
-    if (yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=0&mute=1`;
-    return url;
+    if (yt) return { type: "iframe", src: `https://www.youtube.com/embed/${yt[1]}?autoplay=0&mute=1` };
+    // Pexels or any direct mp4 URL
+    return { type: "video", src: url };
   };
 
   if (!posts.length) return null;
@@ -192,36 +193,50 @@ export function InstagramGrid({ posts }: { posts: SocialPost[] }) {
           <h2 className="section-title">@DiaasaStore</h2>
         </motion.div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-          {posts.map((post, i) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.05 }}
-              className="aspect-square bg-cream-100 rounded-xl overflow-hidden group cursor-pointer relative"
-            >
-              {post.type === "VIDEO" ? (
-                <iframe
-                  src={getVideoEmbed(post.url)}
-                  className="w-full h-full pointer-events-none"
-                  allow="autoplay; encrypted-media"
-                />
-              ) : (
-                <img
-                  src={post.url}
-                  alt={post.caption || ""}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-              )}
-              {post.link && (
-                <a
-                  href={post.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"
-                />
-              )}
-            </motion.div>
-          ))}
+          {posts.map((post, i) => {
+            const video = post.type === "VIDEO" ? getVideoEmbed(post.url) : null;
+            return (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+                className="aspect-square bg-cream-100 rounded-xl overflow-hidden group cursor-pointer relative"
+              >
+                {video ? (
+                  video.type === "iframe" ? (
+                    <iframe
+                      src={video.src}
+                      className="w-full h-full pointer-events-none"
+                      allow="autoplay; encrypted-media"
+                    />
+                  ) : (
+                    <video
+                      src={video.src}
+                      className="w-full h-full object-cover"
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  )
+                ) : (
+                  <img
+                    src={post.url}
+                    alt={post.caption || ""}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
+                {post.link && (
+                  <a
+                    href={post.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300"
+                  />
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -11,14 +11,14 @@ const BENEFITS = [
   { icon: Truck, title: "Free Shipping", desc: "On orders above ₹500" },
   { icon: ShieldCheck, title: "100% Authentic", desc: "Genuine products always" },
   { icon: RefreshCw, title: "Easy Returns", desc: "7-day hassle free returns" },
-  { icon: Headphones, title: "24/7 Support", desc: "We're here to help" },
+  { icon: Headphones, title: "9 AM – 6 PM Support", desc: "Mon–Sat, we're here to help" },
 ];
 
 export function BenefitsBar() {
   return (
     <section className="bg-white border-y border-charcoal-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-charcoal-100">
+        <div className="grid grid-cols-2 md:grid-cols-4">
           {BENEFITS.map(({ icon: Icon, title, desc }, i) => (
             <motion.div
               key={title}
@@ -26,14 +26,20 @@ export function BenefitsBar() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="flex items-center gap-3 px-6 py-5"
+              className={`flex items-center gap-3 px-4 py-5 sm:px-6 ${
+                i % 2 === 0 ? "border-r border-charcoal-100" : ""
+              } ${
+                i < 2 ? "border-b border-charcoal-100 md:border-b-0" : ""
+              } ${
+                i < 3 ? "md:border-r md:border-charcoal-100" : ""
+              }`}
             >
-              <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center shrink-0">
-                <Icon size={18} className="text-brand-600" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-50 flex items-center justify-center shrink-0">
+                <Icon size={16} className="text-brand-600 sm:w-[18px] sm:h-[18px]" />
               </div>
-              <div>
-                <p className="font-body text-sm font-semibold text-charcoal-800">{title}</p>
-                <p className="font-body text-xs text-charcoal-400">{desc}</p>
+              <div className="min-w-0">
+                <p className="font-body text-xs sm:text-sm font-semibold text-charcoal-800 leading-tight">{title}</p>
+                <p className="font-body text-[11px] sm:text-xs text-charcoal-400 mt-0.5 leading-tight">{desc}</p>
               </div>
             </motion.div>
           ))}
