@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
+import StoreInitializer from "@/components/StoreInitializer";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${cormorant.variable} ${dmSans.variable}`}>
       <body className="font-body bg-cream-50 text-charcoal-900 antialiased">
+        <StoreInitializer />
         {children}
         <Toaster
           position="top-right"

@@ -75,16 +75,13 @@ export default function Header() {
               "✦",
               "100% Authentic Products",
               "✦",
+              "⚠️ YOUR SAFETY MATTERS — WE NEVER CALL TO ASK FOR BANK DETAILS, OTPS, OR PAYMENTS",
+              "✦",
             ].map((t, i) => (
-              <span key={i} className="shrink-0">
-                {t}
-              </span>
+              <span key={i} className="shrink-0">{t}</span>
             ))}
           </span>
-          <span
-            className="marquee-track inline-flex gap-12 shrink-0"
-            aria-hidden
-          >
+          <span className="marquee-track inline-flex gap-12 shrink-0" aria-hidden>
             {[
               "Free shipping on orders above ₹500",
               "✦",
@@ -92,10 +89,10 @@ export default function Header() {
               "✦",
               "100% Authentic Products",
               "✦",
+              "⚠️ YOUR SAFETY MATTERS — WE NEVER CALL TO ASK FOR BANK DETAILS, OTPS, OR PAYMENTS",
+              "✦",
             ].map((t, i) => (
-              <span key={i} className="shrink-0">
-                {t}
-              </span>
+              <span key={i} className="shrink-0">{t}</span>
             ))}
           </span>
         </div>

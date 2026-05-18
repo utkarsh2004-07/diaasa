@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateOTP, hashOTP, getOTPExpiry } from "@/lib/otp";
-import { sendOTPViaSMS } from "@/lib/fast2sms";
+import { sendOTPViaWhatsApp } from "@/lib/fast2sms";
 import { rateLimitOTPSend, rateLimitByIP } from "@/lib/ratelimit";
 import {
   successResponse,
@@ -76,10 +76,10 @@ export async function POST(request: NextRequest) {
       data: { phone, otpHash, expiresAt, ipAddress: ip },
     });
 
-    // Send SMS
-    const sent = await sendOTPViaSMS(phone, otp);
+    // Send WhatsApp OTP
+    const sent = await sendOTPViaWhatsApp(phone, otp);
     if (!sent) {
-      return errorResponse("SMS_FAILED", "Failed to send OTP. Please try again.");
+      return errorResponse("WHATSAPP_FAILED", "Failed to send OTP via WhatsApp. Please try again.");
     }
 
     return successResponse(
