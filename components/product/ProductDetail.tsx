@@ -341,7 +341,9 @@ export default function ProductDetail({ product, coupons, related }: Props) {
               <span className="font-body text-sm font-semibold text-green-600">Save {discount}%</span>
             )}
           </div>
-          <p className="font-body text-xs text-charcoal-400 mt-1">Incl. {product.gstPercent}% GST</p>
+          {product.gstPercent > 0 && (
+            <p className="font-body text-xs text-charcoal-400 mt-1">Incl. {product.gstPercent}% GST</p>
+          )}
 
           {product.shortDesc && (
             <p className="mt-4 font-body text-sm text-charcoal-600 leading-relaxed">{product.shortDesc}</p>

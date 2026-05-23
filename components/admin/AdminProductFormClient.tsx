@@ -48,7 +48,7 @@ export default function AdminProductFormClient({ product, categories }: Props) {
     categoryId: product?.categoryId || (categories[0]?.id || ""),
     brand: product?.brand || "",
     sku: product?.sku || "",
-    gstPercent: product?.gstPercent || 18,
+    gstPercent: product?.gstPercent ?? 0,
     tags: product?.tags || "",
     isActive: product?.isActive ?? true,
     isFeatured: product?.isFeatured ?? false,

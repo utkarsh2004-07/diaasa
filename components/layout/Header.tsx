@@ -71,8 +71,6 @@ export default function Header() {
             {[
               "Free shipping on orders above ₹500",
               "✦",
-              "Use code LUXE10 for 10% off",
-              "✦",
               "100% Authentic Products",
               "✦",
               "⚠️ YOUR SAFETY MATTERS — WE NEVER CALL TO ASK FOR BANK DETAILS, OTPS, OR PAYMENTS",
@@ -84,8 +82,6 @@ export default function Header() {
           <span className="marquee-track inline-flex gap-12 shrink-0" aria-hidden>
             {[
               "Free shipping on orders above ₹500",
-              "✦",
-              "Use code LUXE10 for 10% off",
               "✦",
               "100% Authentic Products",
               "✦",

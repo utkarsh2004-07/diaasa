@@ -159,7 +159,7 @@ model Product {
   categoryId  String
   brand       String?
   tags        String?  @db.Text
-  gstPercent  Float    @default(18)
+  gstPercent  Float    @default(0)
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   isNew       Boolean  @default(false)

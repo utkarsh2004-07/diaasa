@@ -37,7 +37,7 @@ async function main() {
       shortDesc: "Powerful antioxidant serum for radiant, even-toned skin",
       categoryId: skincare.id,
       brand: "Luxe Lab",
-      gstPercent: 18,
+      gstPercent: 0,
       isActive: true, isFeatured: true, isNew: true, isBestSeller: false,
       variants: [
         { name: "30ml", price: 649, comparePrice: 899, stock: 50 },
@@ -50,7 +50,7 @@ async function main() {
       shortDesc: "72-hour moisture lock with hyaluronic acid complex",
       categoryId: skincare.id,
       brand: "Luxe Lab",
-      gstPercent: 18,
+      gstPercent: 0,
       isActive: true, isFeatured: true, isNew: false, isBestSeller: true,
       variants: [
         { name: "50g", price: 799, comparePrice: 999, stock: 45 },

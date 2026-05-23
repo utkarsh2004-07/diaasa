@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Twitter, Youtube, Facebook } from "lucide-react";
+import { Instagram, Facebook, Linkedin } from "lucide-react";
 
 const links = {
   "Quick Links": [
@@ -24,10 +24,9 @@ const links = {
 };
 
 const social = [
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Youtube, href: "#", label: "YouTube" },
-  { icon: Facebook, href: "#", label: "Facebook" },
+  { icon: Instagram, href: "https://www.instagram.com/diaasabeauty", label: "Instagram" },
+  { icon: Facebook, href: "https://www.facebook.com/people/Diaasa-Skin-Bath-Luxury/61579664244903/", label: "Facebook" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/diaasa-skin-and-bath-luxury-%F0%9F%8C%BF-8b0355363/", label: "LinkedIn" },
 ];
 
 export default function Footer() {
@@ -60,6 +59,8 @@ export default function Footer() {
                   key={label}
                   href={href}
                   aria-label={label}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-9 h-9 rounded-full border border-charcoal-700 flex items-center justify-center text-charcoal-400 hover:border-brand-500 hover:text-brand-400 transition-all duration-200"
                 >
                   <Icon size={16} />
