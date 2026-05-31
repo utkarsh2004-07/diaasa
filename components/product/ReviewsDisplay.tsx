@@ -147,6 +147,20 @@ export default function ReviewsDisplay({ productId, showTitle = true }: ReviewsD
                 <p className="font-body text-sm text-charcoal-600 leading-relaxed">
                   {review.message}
                 </p>
+                {review.images && (() => {
+                  try {
+                    const imgs: string[] = JSON.parse(review.images);
+                    if (imgs.length > 0) return (
+                      <div className="flex gap-2 mt-3 flex-wrap">
+                        {imgs.map((url: string, i: number) => (
+                          <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                            <img src={url} alt={`review-img-${i}`} className="w-20 h-20 object-cover rounded-xl border border-charcoal-100 hover:opacity-90 transition-opacity" />
+                          </a>
+                        ))}
+                      </div>
+                    );
+                  } catch { return null; }
+                })()}
                 <p className="font-body text-xs text-charcoal-400 mt-2">
                   {new Date(review.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",

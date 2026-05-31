@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { useReviewStore } from "@/store/reviewStore";
+import ImageUpload from "@/components/ImageUpload";
+import Image from "next/image";
 
 interface ReviewFormProps {
   productId: string;
@@ -20,6 +22,7 @@ export default function ReviewForm({ productId, productName, onReviewSubmitted }
   const [hoverRating, setHoverRating] = useState(0);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const { clearCache } = useReviewStore();
 
   useEffect(() => {
@@ -61,6 +64,7 @@ export default function ReviewForm({ productId, productName, onReviewSubmitted }
           rating,
           title: title.trim() || undefined,
           message: message.trim(),
+          images: images.length > 0 ? JSON.stringify(images) : undefined,
         }),
       });
 
@@ -165,6 +169,34 @@ export default function ReviewForm({ productId, productName, onReviewSubmitted }
             <p className="text-xs text-charcoal-400 mt-1">
               {message.length}/1000 characters (minimum 10)
             </p>
+          </div>
+
+          <div>
+            <label className="block font-body text-sm font-medium text-charcoal-700 mb-2">
+              Add Photos (Optional)
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {images.map((url, i) => (
+                <div key={i} className="relative w-20 h-20 rounded-xl overflow-hidden bg-cream-100 group">
+                  <Image src={url} alt={`review-img-${i}`} fill className="object-cover" sizes="80px" />
+                  <button
+                    type="button"
+                    onClick={() => setImages((imgs) => imgs.filter((_, idx) => idx !== i))}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+              {images.length < 3 && (
+                <ImageUpload
+                  folder="diaasa/reviews"
+                  label="Add Photo"
+                  onUpload={(url) => setImages((imgs) => [...imgs, url])}
+                />
+              )}
+            </div>
+            <p className="text-xs text-charcoal-400 mt-1">Max 3 photos, 5MB each</p>
           </div>
 
           <div className="flex gap-3">

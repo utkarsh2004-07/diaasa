@@ -6,16 +6,51 @@ import ProductDetail from "@/components/product/ProductDetail";
 
 export const dynamic = "force-dynamic";
 
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.diaasa.com";
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await prisma.product.findUnique({
     where: { slug, isActive: true },
-    select: { name: true, shortDesc: true, metaTitle: true, metaDesc: true },
+    select: {
+      name: true, shortDesc: true, metaTitle: true, metaDesc: true,
+      brand: true, tags: true,
+      images: { where: { isPrimary: true }, take: 1 },
+      variants: { where: { isActive: true }, orderBy: { price: "asc" }, take: 1 },
+    },
   });
   if (!product) return { title: "Product Not Found" };
+
+  const title = product.metaTitle || `${product.name} | Diaasa Store`;
+  const description = product.metaDesc || product.shortDesc || `Buy ${product.name} from Diaasa Store`;
+  const image = product.images[0]?.url || `${APP_URL}/images/placeholder-product.jpg`;
+  const url = `${APP_URL}/product/${slug}`;
+  const price = product.variants[0]?.price;
+
   return {
-    title: product.metaTitle || product.name,
-    description: product.metaDesc || product.shortDesc || "",
+    title,
+    description,
+    keywords: product.tags || `${product.name}, ${product.brand || ""}, diaasa, skincare, beauty`,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "Diaasa Store",
+      images: [{ url: image, width: 800, height: 800, alt: product.name }],
+      type: "website",
+      locale: "en_IN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+    other: {
+      "product:price:amount": price ? String(price) : "",
+      "product:price:currency": "INR",
+    },
   };
 }
 
@@ -63,6 +98,32 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <>
       <Header />
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description: product.shortDesc || "",
+            image: product.images.map((i) => i.url),
+            brand: { "@type": "Brand", name: product.brand || "Diaasa" },
+            offers: product.variants.map((v) => ({
+              "@type": "Offer",
+              price: v.price,
+              priceCurrency: "INR",
+              availability: v.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              url: `${APP_URL}/product/${product.slug}`,
+            })),
+            aggregateRating: avgRating > 0 ? {
+              "@type": "AggregateRating",
+              ratingValue: avgRating.toFixed(1),
+              reviewCount: product._count.reviews,
+            } : undefined,
+          }),
+        }}
+      />
       <main className="min-h-screen bg-cream-50">
         <ProductDetail
           product={{ ...product, avgRating, reviewCount: product._count.reviews }}

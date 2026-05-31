@@ -121,6 +121,7 @@ export default function Header() {
                 height={120}
                 className="h-[110px] md:h-[140px] w-auto object-contain"
                 priority
+                loading="eager"
               />
 
               <span className="hidden sm:block w-px h-10 bg-charcoal-300 " />

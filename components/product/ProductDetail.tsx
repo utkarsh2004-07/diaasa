@@ -6,8 +6,10 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart, ShoppingBag, Star, ChevronRight, Minus, Plus,
-  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown, FlaskConical, ExternalLink, ChevronLeft,
+  Shield, Truck, RefreshCw, Tag, Copy, Check, ChevronDown, FlaskConical, ExternalLink, ChevronLeft, Share2, X,
 } from "lucide-react";
+import { FaWhatsapp, FaFacebook, FaInstagram, FaTelegram } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
@@ -178,6 +180,8 @@ export default function ProductDetail({ product, coupons, related }: Props) {
   const [selectedVariant, setSelectedVariant] = useState<Variant>(product.variants[0]);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const { addItem } = useCartStore();
   const { toggle, isWishlisted } = useWishlistStore();
   const wishlisted = isWishlisted(product.id);
@@ -399,6 +403,13 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                 }`}
               >
                 <Heart size={18} className={wishlisted ? "fill-current" : ""} />
+              </button>
+              <button
+                onClick={() => setShareOpen(true)}
+                className="w-12 h-12 rounded-full border border-charcoal-200 flex items-center justify-center hover:border-brand-400 hover:text-brand-500 transition-all duration-200 shrink-0"
+                title="Share"
+              >
+                <Share2 size={18} />
               </button>
             </div>
             <button
@@ -633,6 +644,20 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                     <p className="font-body text-sm font-semibold text-charcoal-800">{r.title}</p>
                   )}
                   <p className="font-body text-sm text-charcoal-600 leading-relaxed">{r.message}</p>
+                  {r.images && (() => {
+                    try {
+                      const imgs: string[] = JSON.parse(r.images as unknown as string);
+                      if (imgs.length > 0) return (
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {imgs.map((url, i) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                              <img src={url} alt={`img-${i}`} className="w-16 h-16 object-cover rounded-lg border border-charcoal-100 hover:opacity-90 transition-opacity" />
+                            </a>
+                          ))}
+                        </div>
+                      );
+                    } catch { return null; }
+                  })()}
                 </div>
               ))}
             </div>
@@ -651,6 +676,77 @@ export default function ProductDetail({ product, coupons, related }: Props) {
           </div>
         </div>
       )}
+
+      {/* Share Sheet */}
+      <AnimatePresence>
+        {shareOpen && (() => {
+          const url = `https://www.diaasa.com/product/${product.slug}`;
+          const text = `Check out ${product.name} on Diaasa Store! ${url}`;
+          const shares = [
+            { label: "WhatsApp", bg: "bg-[#25D366]", href: `https://wa.me/?text=${encodeURIComponent(text)}` },
+            { label: "Facebook", bg: "bg-[#1877F2]", href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
+            { label: "Twitter/X", bg: "bg-black", href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}` },
+            { label: "Telegram", bg: "bg-[#229ED9]", href: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(product.name)}` },
+            { label: "Instagram", bg: "bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCAF45]", href: `https://www.instagram.com/` },
+          ];
+          const icons: Record<string, React.ReactNode> = {
+            WhatsApp: <FaWhatsapp size={24} />,
+            Facebook: <FaFacebook size={24} />,
+            "Twitter/X": <FaXTwitter size={24} />,
+            Telegram: <FaTelegram size={24} />,
+            Instagram: <FaInstagram size={24} />,
+          };
+          return (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50 flex items-end sm:items-center justify-center"
+              onClick={() => setShareOpen(false)}
+            >
+              <motion.div
+                initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className="bg-white w-full sm:w-96 rounded-t-3xl sm:rounded-2xl p-6 shadow-strong"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="font-display text-xl font-light text-charcoal-900">Share Product</h3>
+                  <button onClick={() => setShareOpen(false)} className="w-8 h-8 rounded-full bg-charcoal-100 flex items-center justify-center hover:bg-charcoal-200 transition-colors">
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-cream-50 rounded-xl mb-5">
+                  {product.images[0] && <img src={product.images[0].url} alt={product.name} className="w-12 h-12 rounded-lg object-cover" />}
+                  <div className="min-w-0">
+                    <p className="font-body text-sm font-medium text-charcoal-800 truncate">{product.name}</p>
+                    <p className="font-body text-xs text-brand-600">₹{selectedVariant.price.toLocaleString("en-IN")}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-2 mb-5">
+                  {shares.map((s) => (
+                    <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                      onClick={() => setShareOpen(false)}
+                      className={`${s.bg} text-white rounded-2xl p-3 flex flex-col items-center gap-1.5 transition-all hover:opacity-90`}
+                    >
+                      {icons[s.label]}
+                      <span className="font-body text-[10px] font-medium text-center leading-tight">{s.label}</span>
+                    </a>
+                  ))}
+                </div>
+                <button
+                  onClick={() => { navigator.clipboard.writeText(url); setLinkCopied(true); toast.success("Link copied!"); setTimeout(() => setLinkCopied(false), 2000); }}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 border border-charcoal-200 rounded-xl hover:border-brand-400 transition-colors"
+                >
+                  <span className="font-body text-xs text-charcoal-500 truncate">{url}</span>
+                  <span className="shrink-0 flex items-center gap-1 font-body text-xs font-semibold text-brand-600">
+                    {linkCopied ? <Check size={14} /> : <Copy size={14} />}
+                    {linkCopied ? "Copied!" : "Copy Link"}
+                  </span>
+                </button>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

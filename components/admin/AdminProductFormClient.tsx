@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Plus, Trash2, Save, ArrowLeft, X } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import ImageUpload from "@/components/ImageUpload";
 
 interface Category { id: string; name: string; }
 interface Variant { id?: string; name: string; price: number; comparePrice?: number | null; stock: number; sku?: string | null; }
@@ -395,7 +396,7 @@ export default function AdminProductFormClient({ product, categories }: Props) {
           {/* Images */}
           <div className="bg-white rounded-2xl p-6 shadow-soft border border-charcoal-50">
             <h2 className="font-body text-sm font-semibold text-charcoal-700 mb-4">Product Images</h2>
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-3">
               <input
                 value={newImageUrl}
                 onChange={(e) => setNewImageUrl(e.target.value)}
@@ -404,9 +405,15 @@ export default function AdminProductFormClient({ product, categories }: Props) {
               />
               <button type="button" onClick={addImage} className="btn-outline text-sm py-2 px-4">Add</button>
             </div>
-            <p className="text-[10px] text-charcoal-400 mb-4 italic">
-              Tip: Upload images to Cloudinary first to maintain high server performance.
-            </p>
+            <div className="mb-4">
+              <ImageUpload
+                folder="diaasa/products"
+                label="Upload from PC"
+                onUpload={(url) => {
+                  setImages((imgs) => [...imgs, { url, altText: form.name, isPrimary: imgs.length === 0 }]);
+                }}
+              />
+            </div>
             {images.length > 0 && (
               <div className="grid grid-cols-4 gap-2">
                 {images.map((img, i) => (

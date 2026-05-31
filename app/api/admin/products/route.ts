@@ -42,9 +42,10 @@ export async function POST(request: NextRequest) {
       return tx.product.create({
         data: {
           name, slug, description, shortDesc, categoryId, brand,
-          gstPercent: gstPercent || 18, isActive: isActive ?? true,
+          gstPercent: gstPercent ?? 0, isActive: isActive ?? true,
           isFeatured: isFeatured ?? false, isNew: isNew ?? false,
-          isBestSeller: isBestSeller ?? false, tags, sku,
+          isBestSeller: isBestSeller ?? false, tags,
+          sku: sku?.trim() || null,
           whyWeLove: whyWeLove || null, whyWeLoveItems: whyWeLoveItems || null,
           howToUse: howToUse || null,
           benefits: benefits || null, keyIngredients: keyIngredients || null,

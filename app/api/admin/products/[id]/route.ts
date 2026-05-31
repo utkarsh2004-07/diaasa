@@ -16,6 +16,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       where: { id },
       data: {
         ...rest,
+        sku: rest.sku?.trim() || null,
+        gstPercent: rest.gstPercent ?? 0,
         category: { connect: { id: categoryId } },
         ...(variants && {
           variants: {

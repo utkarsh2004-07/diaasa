@@ -10,6 +10,7 @@ const schema = z.object({
   rating: z.number().int().min(1).max(5),
   title: z.string().max(100).optional(),
   message: z.string().min(10).max(1000),
+  images: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success)
       return errorResponse("VALIDATION_ERROR", parsed.error.errors[0].message);
 
-    const { productId, rating, title, message } = parsed.data;
+    const { productId, rating, title, message, images } = parsed.data;
 
     // Check if user has delivered order with this product
     const deliveredOrder = await prisma.orderItem.findFirst({
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
     if (existing) return errorResponse("ALREADY_REVIEWED", "You have already reviewed this product");
 
     const review = await prisma.review.create({
-      data: { userId: session.userId, productId, rating, title, message, status: "PENDING" },
+      data: { userId: session.userId, productId, rating, title, message, images: images || null, status: "PENDING" },
     });
 
     return successResponse({ review }, "Review submitted! It will be visible after moderation.", 201);
