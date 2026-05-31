@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, FolderOpen, Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import ImageUpload from "@/components/ImageUpload";
 
 interface Category {
   id: string;
@@ -191,14 +192,24 @@ export default function AdminCategoriesClient({
                   />
                 </div>
                 <div>
-                  <label className="font-body text-xs font-medium text-charcoal-600 mb-1 block">Image URL</label>
-                  <input
-                    value={form.image as string}
-                    onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                    className="input-base"
-                    placeholder="Paste Cloudinary URL…"
-                  />
-                  <p className="text-[10px] text-charcoal-400 mt-1">Recommended: Use Cloudinary URLs for better speed.</p>
+                  <label className="font-body text-xs font-medium text-charcoal-600 mb-1 block">Category Image</label>
+                  <div className="flex gap-2 items-start">
+                    <input
+                      value={form.image as string}
+                      onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
+                      className="input-base flex-1"
+                      placeholder="Paste Cloudinary URL or upload below…"
+                    />
+                  </div>
+                  <div className="mt-2">
+                    <ImageUpload
+                      folder="diaasa/categories"
+                      label="Upload from PC"
+                      preview={form.image as string || null}
+                      onUpload={(url) => setForm((f) => ({ ...f, image: url }))}
+                      onRemove={() => setForm((f) => ({ ...f, image: "" }))}
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

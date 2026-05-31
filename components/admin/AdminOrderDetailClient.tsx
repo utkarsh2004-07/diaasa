@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { Download, Truck, ExternalLink } from "lucide-react";
+import { Download, Truck, ExternalLink, FileText, Package } from "lucide-react";
 
 const STATUSES = ["PENDING","CONFIRMED","PROCESSING","SHIPPED","DELIVERED","CANCELLED"];
 
@@ -41,6 +41,8 @@ export default function AdminOrderDetailClient({ order: initial }: { order: Orde
   const [shipping, setShipping] = useState(false);
   const [srStatus, setSrStatus] = useState<null | { awb: string; status: string; courier: string; etd: string; city: string }>(null);
   const [checkingSr, setCheckingSr] = useState(false);
+  const [generatingLabel, setGeneratingLabel] = useState(false);
+  const [generatingManifest, setGeneratingManifest] = useState(false);
   const router = useRouter();
 
   const updateStatus = async (status: string) => {
@@ -121,6 +123,34 @@ export default function AdminOrderDetailClient({ order: initial }: { order: Orde
     } finally { setCheckingSr(false); }
   };
 
+  const handleGenerateLabel = async () => {
+    setGeneratingLabel(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/label`, { method: "POST" });
+      const data = await res.json();
+      if (data.success && data.data?.labelUrl) {
+        window.open(data.data.labelUrl, "_blank");
+        toast.success("Shipping label ready!");
+      } else {
+        toast.error(data.error?.message || "Label not ready yet, try again in a moment");
+      }
+    } finally { setGeneratingLabel(false); }
+  };
+
+  const handleGenerateManifest = async () => {
+    setGeneratingManifest(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}/manifest`, { method: "POST" });
+      const data = await res.json();
+      if (data.success && data.data?.manifestUrl) {
+        window.open(data.data.manifestUrl, "_blank");
+        toast.success("Manifest ready!");
+      } else {
+        toast.error(data.error?.message || "Manifest not ready yet, try again in a moment");
+      }
+    } finally { setGeneratingManifest(false); }
+  };
+
   return (
     <div className="space-y-5 max-w-4xl">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -151,14 +181,32 @@ export default function AdminOrderDetailClient({ order: initial }: { order: Orde
           )}
 
           {order.shiprocketOrderId && (
-            <button
-              onClick={checkSrStatus}
-              disabled={checkingSr}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 font-body text-sm font-medium transition-all disabled:opacity-50"
-            >
-              <Truck size={14} />
-              {checkingSr ? "Checking..." : "Check Shiprocket Status"}
-            </button>
+            <>
+              <button
+                onClick={checkSrStatus}
+                disabled={checkingSr}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 font-body text-sm font-medium transition-all disabled:opacity-50"
+              >
+                <Truck size={14} />
+                {checkingSr ? "Checking..." : "Check Status"}
+              </button>
+              <button
+                onClick={handleGenerateLabel}
+                disabled={generatingLabel}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 font-body text-sm font-medium transition-all disabled:opacity-50"
+              >
+                <FileText size={14} />
+                {generatingLabel ? "Generating..." : "Shipping Label"}
+              </button>
+              <button
+                onClick={handleGenerateManifest}
+                disabled={generatingManifest}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100 font-body text-sm font-medium transition-all disabled:opacity-50"
+              >
+                <Package size={14} />
+                {generatingManifest ? "Generating..." : "Manifest"}
+              </button>
+            </>
           )}
 
           {order.awbCode && (

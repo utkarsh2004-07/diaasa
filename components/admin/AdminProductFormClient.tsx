@@ -35,6 +35,8 @@ interface Props {
   categories: Category[];
 }
 
+const UNIT_OPTIONS = ["g", "gm", "kg", "ml", "L", "pcs", "pack", "tablet", "capsule"];
+
 const EMPTY_VARIANT: Variant = { name: "", price: 0, comparePrice: null, stock: 0, sku: "" };
 
 export default function AdminProductFormClient({ product, categories }: Props) {
@@ -78,6 +80,16 @@ export default function AdminProductFormClient({ product, categories }: Props) {
     setNewIngredientUrl("");
   };
   const removeIngredientImg = (i: number) => setIngredientImgs((imgs) => imgs.filter((_, idx) => idx !== i));
+
+  // multiple benefits images
+  const parseBenefitImgs = (): string[] => {
+    if (product?.benefitsImage) {
+      try { return JSON.parse(product.benefitsImage); } catch { return product.benefitsImage ? [product.benefitsImage] : []; }
+    }
+    return [];
+  };
+  const [benefitImgs, setBenefitImgs] = useState<string[]>(parseBenefitImgs);
+  const [newBenefitUrl, setNewBenefitUrl] = useState("");
 
   const parseItems = (): WhyWeLoveItem[] => {
     if (!product?.whyWeLoveItems) return [{ title: "", content: "" }, { title: "", content: "" }, { title: "", content: "" }, { title: "", content: "" }];
@@ -139,6 +151,7 @@ export default function AdminProductFormClient({ product, categories }: Props) {
           whyWeLoveItems: JSON.stringify(whyItems.filter((it) => it.title.trim())),
           ingredientsImages: JSON.stringify(ingredientImgs),
           ingredientsImage: null,
+          benefitsImage: benefitImgs.length > 0 ? JSON.stringify(benefitImgs) : form.benefitsImage || null,
           variants: variants.map((v) => ({
             ...v,
             price: Number(v.price),
@@ -274,9 +287,23 @@ export default function AdminProductFormClient({ product, categories }: Props) {
                   className="grid grid-cols-2 sm:grid-cols-5 gap-2 p-3 bg-charcoal-50 rounded-xl"
                 >
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="font-body text-[10px] text-charcoal-400 block mb-1">Name *</label>
-                    <input value={v.name} onChange={(e) => updateVariant(i, "name", e.target.value)}
-                      required placeholder="50ml" className="input-base py-2 text-sm" />
+                    <label className="font-body text-[10px] text-charcoal-400 block mb-1">Qty *</label>
+                    <div className="flex gap-1">
+                      <input value={v.name.replace(/[a-zA-Z]+$/, "")} onChange={(e) => {
+                        const unit = v.name.match(/[a-zA-Z]+$/)?.[0] || "g";
+                        updateVariant(i, "name", e.target.value + unit);
+                      }} placeholder="100" className="input-base py-2 text-sm w-16" />
+                      <select
+                        value={v.name.match(/[a-zA-Z]+$/)?.[0] || "g"}
+                        onChange={(e) => {
+                          const num = v.name.replace(/[a-zA-Z]+$/, "");
+                          updateVariant(i, "name", num + e.target.value);
+                        }}
+                        className="input-base py-2 text-sm flex-1"
+                      >
+                        {UNIT_OPTIONS.map((u) => <option key={u} value={u}>{u}</option>)}
+                      </select>
+                    </div>
                   </div>
                   <div>
                     <label className="font-body text-[10px] text-charcoal-400 block mb-1">Price (₹) *</label>
@@ -355,10 +382,36 @@ export default function AdminProductFormClient({ product, categories }: Props) {
 
             <div className="grid grid-cols-1 gap-3">
               <div>
-                <label className="font-body text-xs font-medium text-charcoal-600 mb-1 block">Benefits Image URL</label>
-                <input value={form.benefitsImage} onChange={(e) => setForm((f) => ({ ...f, benefitsImage: e.target.value }))}
-                  className="input-base text-sm" placeholder="https://res.cloudinary.com/… (1200×800px, 3:2)" />
-                <p className="text-[10px] text-charcoal-400 mt-1">Recommended: 1200×800 px · 3:2 ratio · max 1 MB · JPG/PNG</p>
+                <label className="font-body text-xs font-medium text-charcoal-600 mb-1 block">Benefits Images</label>
+                <p className="text-[10px] text-charcoal-400 mb-2">Add multiple images for benefits section.</p>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    value={newBenefitUrl}
+                    onChange={(e) => setNewBenefitUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), newBenefitUrl.trim() && (setBenefitImgs(imgs => [...imgs, newBenefitUrl.trim()]), setNewBenefitUrl("")))} 
+                    className="input-base flex-1 text-sm"
+                    placeholder="Paste URL or upload below…"
+                  />
+                  <button type="button" onClick={() => { if (newBenefitUrl.trim()) { setBenefitImgs(imgs => [...imgs, newBenefitUrl.trim()]); setNewBenefitUrl(""); }}} className="btn-outline text-sm py-2 px-4">Add</button>
+                </div>
+                <ImageUpload
+                  folder="diaasa/benefits"
+                  label="Upload Benefit Image"
+                  onUpload={(url) => setBenefitImgs(imgs => [...imgs, url])}
+                />
+                {benefitImgs.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mt-2">
+                    {benefitImgs.map((url, i) => (
+                      <div key={i} className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-cream-100">
+                        <Image src={url} alt={`Benefit ${i + 1}`} fill className="object-cover" sizes="150px" />
+                        <button type="button" onClick={() => setBenefitImgs(imgs => imgs.filter((_, idx) => idx !== i))}
+                          className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <X size={11} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="font-body text-xs font-medium text-charcoal-600 mb-1 block">Key Ingredients Images</label>
@@ -369,10 +422,15 @@ export default function AdminProductFormClient({ product, categories }: Props) {
                     onChange={(e) => setNewIngredientUrl(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addIngredientImg())}
                     className="input-base flex-1 text-sm"
-                    placeholder="Paste Cloudinary URL and press Add…"
+                    placeholder="Paste URL or upload below…"
                   />
                   <button type="button" onClick={addIngredientImg} className="btn-outline text-sm py-2 px-4">Add</button>
                 </div>
+                <ImageUpload
+                  folder="diaasa/ingredients"
+                  label="Upload Ingredient Image"
+                  onUpload={(url) => setIngredientImgs(imgs => [...imgs, url])}
+                />
                 {ingredientImgs.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {ingredientImgs.map((url, i) => (

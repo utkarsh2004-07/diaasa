@@ -17,7 +17,7 @@ import ProductCard from "./ProductCard";
 
 interface Variant { id: string; name: string; price: number; comparePrice?: number | null; stock: number; attributes?: unknown; }
 interface ProductImage { id: string; url: string; altText?: string | null; }
-interface Review { id: string; rating: number; title?: string | null; message: string; createdAt: Date; user: { name?: string | null; avatar?: string | null; }; }
+interface Review { id: string; rating: number; title?: string | null; message: string; images?: string | null; createdAt: Date; user: { name?: string | null; avatar?: string | null; }; }
 interface Coupon { code: string; type: string; value: number; minCartValue: number; description?: string | null; }
 interface WhyWeLoveItem { title: string; content: string; }
 
