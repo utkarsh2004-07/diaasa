@@ -53,21 +53,21 @@ export default function ContactPage() {
                 {[
                   {
                     icon: Phone,
-                    title: "Phone",
-                    value: "+91 00000 00000",
+                    title: "Phone / WhatsApp",
+                    value: "+91 84509 87174",
                     sub: "Mon–Sat, 9 AM – 6 PM",
                   },
                   {
                     icon: Mail,
                     title: "Email",
-                    value: "support@diaasa.com", // update this later
+                    value: "info@diaasa.com",
                     sub: "We reply within 24 hours",
                   },
                   {
                     icon: MapPin,
                     title: "Address",
                     value: "Diaasa Enterprises",
-                    sub: "India",
+                    sub: "Dombivli, Thane, Maharashtra",
                   },
                   {
                     icon: Clock,

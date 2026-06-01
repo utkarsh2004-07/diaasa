@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const STORE_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Diaasa Store";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.diaasa.com";
 
 function baseTemplate(content: string) {
   return `<!DOCTYPE html>
