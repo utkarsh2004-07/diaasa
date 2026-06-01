@@ -77,6 +77,7 @@ export function FounderSection() {
             <p className="font-body text-sm font-semibold text-charcoal-500 tracking-wide">
               — Founder, DIAASA
             </p>
+            
           </motion.div>
         </div>
       </div>
