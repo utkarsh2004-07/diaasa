@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -174,6 +174,78 @@ function CouponStrip({ coupons }: { coupons: Coupon[] }) {
   );
 }
 
+/* ─── Key Ingredients Slider — 3 per page ─── */
+function IngredientSlider({ images }: { images: string[] }) {
+  const [page, setPage] = useState(0);
+  const PER_PAGE = 3;
+  const totalPages = Math.ceil(images.length / PER_PAGE);
+  const visible = images.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE);
+
+  if (images.length <= PER_PAGE) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {images.map((url, i) => (
+          <div key={i} className="relative w-full h-44 sm:h-56 rounded-2xl overflow-hidden bg-cream-100">
+            <Image src={url} alt={`Key Ingredient ${i + 1}`} fill className="object-contain p-2" sizes="(max-width: 640px) 50vw, 33vw" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={page}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -30 }}
+          transition={{ duration: 0.25 }}
+          className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+        >
+          {visible.map((url, i) => (
+            <div key={i} className="relative w-full h-44 sm:h-56 rounded-2xl overflow-hidden bg-cream-100">
+              <Image src={url} alt={`Key Ingredient ${page * PER_PAGE + i + 1}`} fill className="object-contain p-2" sizes="(max-width: 640px) 50vw, 33vw" />
+            </div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Arrows + dots */}
+      <div className="flex items-center justify-between mt-4">
+        <button
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+          className="w-9 h-9 rounded-full border border-charcoal-200 flex items-center justify-center hover:border-brand-400 hover:text-brand-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <ChevronLeft size={18} />
+        </button>
+
+        <div className="flex gap-1.5">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i)}
+              className={`rounded-full transition-all ${
+                i === page ? "w-5 h-2 bg-brand-500" : "w-2 h-2 bg-charcoal-200 hover:bg-charcoal-400"
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+          disabled={page === totalPages - 1}
+          className="w-9 h-9 rounded-full border border-charcoal-200 flex items-center justify-center hover:border-brand-400 hover:text-brand-600 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════ */
 export default function ProductDetail({ product, coupons, related }: Props) {
   const [selectedImg, setSelectedImg] = useState(0);
@@ -184,7 +256,8 @@ export default function ProductDetail({ product, coupons, related }: Props) {
   const [linkCopied, setLinkCopied] = useState(false);
   const { addItem } = useCartStore();
   const { toggle, isWishlisted } = useWishlistStore();
-  const wishlisted = isWishlisted(product.id);
+  const [wishlisted, setWishlisted] = useState(false);
+  useEffect(() => { setWishlisted(isWishlisted(product.id)); }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const discount = selectedVariant.comparePrice
     ? Math.round(((selectedVariant.comparePrice - selectedVariant.price) / selectedVariant.comparePrice) * 100)
@@ -397,7 +470,7 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                 </button>
               </div>
               <button
-                onClick={() => toggle(product.id)}
+                onClick={() => { toggle(product.id); setWishlisted((w) => !w); }}
                 className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-200 shrink-0 ${
                   wishlisted ? "border-red-300 bg-red-50 text-red-500" : "border-charcoal-200 hover:border-red-300 hover:text-red-400"
                 }`}
@@ -514,26 +587,7 @@ export default function ProductDetail({ product, coupons, related }: Props) {
           <FullAccordion title="Key Ingredients">
             <div className="space-y-5">
               {ingredientImgs.length > 0 && (
-                <div className={`grid gap-3 ${
-                  ingredientImgs.length === 1
-                    ? "grid-cols-1 max-w-lg"
-                    : ingredientImgs.length === 2
-                    ? "grid-cols-2"
-                    : "grid-cols-2 sm:grid-cols-3"
-                }`}>
-                  {ingredientImgs.map((url, i) => (
-                    /* fixed height — no aspect-ratio stretching */
-                    <div key={i} className="relative w-full h-44 sm:h-56 rounded-2xl overflow-hidden bg-cream-100">
-                      <Image
-                        src={url}
-                        alt={`Key Ingredient ${i + 1}`}
-                        fill
-                        className="object-cover object-center"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      />
-                    </div>
-                  ))}
-                </div>
+                <IngredientSlider images={ingredientImgs} />
               )}
               {product.keyIngredients && (
                 <p className="font-body text-sm text-charcoal-600 leading-relaxed whitespace-pre-line">

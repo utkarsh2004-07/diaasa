@@ -7,10 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FlaskConical, ShieldCheck, Award, BadgeCheck, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 const TRUST_POINTS = [
-  { icon: FlaskConical, label: "Lab Tested",           desc: "Every batch independently tested" },
-  { icon: ShieldCheck,  label: "No Harmful Chemicals", desc: "Free from parabens & sulfates" },
-  { icon: Award,        label: "Quality Certified",    desc: "Meets international standards" },
-  { icon: BadgeCheck,   label: "Dermatologically Safe",desc: "Tested on all skin types" },
+  { icon: Award,        label: "Quality Evaluated",          desc: "Every product meets our high standards" },
+  { icon: BadgeCheck,   label: "Carefully Curated",          desc: "Handpicked for quality & consistency" },
+  { icon: FlaskConical, label: "Inspired by Ayurvedic Traditions", desc: "Rooted in ancient skincare wisdom" },
+  { icon: ShieldCheck,  label: "Crafted for Everyday Use",   desc: "Gentle, effective & skin-friendly" },
 ];
 
 const CERTIFICATES = [
@@ -44,7 +44,7 @@ export function LabTestedSection() {
           </div>
           <h2 className="section-title mb-3">Lab Tested. Proven Safe.</h2>
           <p className="font-body text-sm sm:text-base text-charcoal-500 max-w-xl mx-auto leading-relaxed">
-            Every Diaasa product is independently tested by accredited laboratories — so you can trust what goes on your skin.
+            Every DIAASA product is carefully curated and quality evaluated to maintain high standards of craftsmanship, consistency, and everyday skincare comfort.
           </p>
         </motion.div>
 
