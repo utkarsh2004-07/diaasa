@@ -270,11 +270,11 @@ export default function Header() {
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {[
-                    "Vitamin C Serum",
-                    "Face Wash",
+                    "Ubtan Soap",
+                    "Kesar Soap",
                     "Sunscreen",
-                    "Hair Oil",
-                    "Moisturizer",
+                    "Facial Bar",
+                    "Sandal Soap",
                   ].map((t) => (
                     <button
                       key={t}

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Save, ArrowLeft, X } from "lucide-react";
+import { Plus, Trash2, Save, ArrowLeft, X, GripVertical } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import ImageUpload from "@/components/ImageUpload";
@@ -106,6 +106,38 @@ export default function AdminProductFormClient({ product, categories }: Props) {
 
   const [images, setImages] = useState<ProductImage[]>(product?.images || []);
   const [newImageUrl, setNewImageUrl] = useState("");
+  const dragItem = useRef<number | null>(null);
+  const dragOver = useRef<number | null>(null);
+  const dragItemType = useRef<"images" | "benefit" | "ingredient" | null>(null);
+
+  const handleDragStart = (type: "images" | "benefit" | "ingredient", index: number) => {
+    dragItem.current = index;
+    dragItemType.current = type;
+  };
+
+  const handleDragEnter = (index: number) => { dragOver.current = index; };
+
+  const handleDrop = () => {
+    const from = dragItem.current;
+    const to = dragOver.current;
+    const type = dragItemType.current;
+    if (from === null || to === null || from === to || !type) return;
+
+    const reorder = <T,>(arr: T[]): T[] => {
+      const copy = [...arr];
+      const [moved] = copy.splice(from, 1);
+      copy.splice(to, 0, moved);
+      return copy;
+    };
+
+    if (type === "images") setImages(reorder);
+    else if (type === "benefit") setBenefitImgs(reorder);
+    else if (type === "ingredient") setIngredientImgs(reorder);
+
+    dragItem.current = null;
+    dragOver.current = null;
+    dragItemType.current = null;
+  };
 
   const autoSlug = (name: string) =>
     name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
@@ -402,8 +434,17 @@ export default function AdminProductFormClient({ product, categories }: Props) {
                 {benefitImgs.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {benefitImgs.map((url, i) => (
-                      <div key={i} className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-cream-100">
+                      <div
+                        key={i}
+                        draggable
+                        onDragStart={() => handleDragStart("benefit", i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                        className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-cream-100 cursor-grab active:cursor-grabbing"
+                      >
                         <Image src={url} alt={`Benefit ${i + 1}`} fill className="object-cover" sizes="150px" />
+                        <GripVertical size={12} className="absolute bottom-1 left-1 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow" />
                         <button type="button" onClick={() => setBenefitImgs(imgs => imgs.filter((_, idx) => idx !== i))}
                           className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                           <X size={11} />
@@ -434,8 +475,17 @@ export default function AdminProductFormClient({ product, categories }: Props) {
                 {ingredientImgs.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {ingredientImgs.map((url, i) => (
-                      <div key={i} className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-cream-100">
+                      <div
+                        key={i}
+                        draggable
+                        onDragStart={() => handleDragStart("ingredient", i)}
+                        onDragEnter={() => handleDragEnter(i)}
+                        onDragEnd={handleDrop}
+                        onDragOver={(e) => e.preventDefault()}
+                        className="relative group aspect-[4/3] rounded-xl overflow-hidden bg-cream-100 cursor-grab active:cursor-grabbing"
+                      >
                         <Image src={url} alt={`Ingredient ${i + 1}`} fill className="object-cover" sizes="150px" />
+                        <GripVertical size={12} className="absolute bottom-1 left-1 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow" />
                         <button
                           type="button"
                           onClick={() => removeIngredientImg(i)}
@@ -453,11 +503,13 @@ export default function AdminProductFormClient({ product, categories }: Props) {
 
           {/* Images */}
           <div className="bg-white rounded-2xl p-6 shadow-soft border border-charcoal-50">
-            <h2 className="font-body text-sm font-semibold text-charcoal-700 mb-4">Product Images</h2>
+            <h2 className="font-body text-sm font-semibold text-charcoal-700 mb-1">Product Images</h2>
+            <p className="font-body text-[10px] text-charcoal-400 mb-4">Drag to reorder. First image = Primary.</p>
             <div className="flex gap-2 mb-3">
               <input
                 value={newImageUrl}
                 onChange={(e) => setNewImageUrl(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
                 placeholder="Paste Cloudinary URL…"
                 className="input-base flex-1 text-sm"
               />
@@ -475,23 +527,33 @@ export default function AdminProductFormClient({ product, categories }: Props) {
             {images.length > 0 && (
               <div className="grid grid-cols-4 gap-2">
                 {images.map((img, i) => (
-                  <div key={i} className="relative group aspect-square rounded-xl overflow-hidden bg-cream-100">
-                    <Image 
-                      src={img.url} 
-                      alt={img.altText || ""} 
-                      fill 
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={() => handleDragStart("images", i)}
+                    onDragEnter={() => handleDragEnter(i)}
+                    onDragEnd={handleDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                    className="relative group aspect-square rounded-xl overflow-hidden bg-cream-100 cursor-grab active:cursor-grabbing"
+                  >
+                    <Image
+                      src={img.url}
+                      alt={img.altText || ""}
+                      fill
                       className="object-cover"
                       sizes="(max-width: 768px) 25vw, 150px"
                     />
                     {i === 0 && (
-                      <div className="absolute top-1 left-1 bg-brand-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-body font-bold">
+                      <div className="absolute top-1 left-1 bg-brand-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-body font-bold z-10">
                         Primary
                       </div>
                     )}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                    <GripVertical size={14} className="absolute bottom-1 left-1 text-white opacity-0 group-hover:opacity-80 transition-opacity drop-shadow" />
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                     >
                       <X size={11} />
                     </button>

@@ -67,6 +67,14 @@ export default function HeroSection({ banners }: Props) {
   };
 
   if (slides) {
+    const currentSlide = slides[current];
+    const BannerWrapper = ({ children }: { children: React.ReactNode }) =>
+      currentSlide.link ? (
+        <Link href={currentSlide.link} className="block w-full cursor-pointer">{children}</Link>
+      ) : (
+        <div className="w-full">{children}</div>
+      );
+
     return (
       <section className="relative w-full overflow-hidden bg-transparent">
         <AnimatePresence custom={direction} initial={false}>
@@ -80,49 +88,37 @@ export default function HeroSection({ banners }: Props) {
             transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             className="w-full"
           >
-            {/* Desktop image */}
-            <img
-              src={slides[current].image}
-              alt={slides[current].title || "Banner"}
-              className="w-full h-auto block hidden sm:block"
-            />
-            {/* Mobile image — uses mobileImage if set, falls back to desktop image */}
-            <img
-              src={slides[current].mobileImage || slides[current].image}
-              alt={slides[current].title || "Banner"}
-              className="w-full h-auto block sm:hidden"
-            />
-            {(slides[current].title || slides[current].link) && (
-              <>
-                <div className="absolute inset-0 bg-gradient-to-r from-charcoal-900/60 via-transparent to-transparent" />
-                <div className="absolute inset-0 flex items-center">
-                  <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 w-full">
-                    {slides[current].title && (
+            <BannerWrapper>
+              {/* Desktop image */}
+              <img
+                src={currentSlide.image}
+                alt={currentSlide.title || "Banner"}
+                className="w-full h-auto hidden sm:block"
+              />
+              {/* Mobile image */}
+              <img
+                src={currentSlide.mobileImage || currentSlide.image}
+                alt={currentSlide.title || "Banner"}
+                className="w-full h-auto block sm:hidden"
+              />
+              {currentSlide.title && (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-charcoal-900/60 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 flex items-center pointer-events-none">
+                    <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 w-full">
                       <motion.h1
                         initial={{ y: 30, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.6 }}
                         className="font-display text-4xl md:text-6xl lg:text-7xl font-light text-white leading-tight max-w-xl"
                       >
-                        {slides[current].title}
+                        {currentSlide.title}
                       </motion.h1>
-                    )}
-                    {slides[current].link && (
-                      <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4, duration: 0.5 }}
-                        className="mt-8"
-                      >
-                        <Link href={slides[current].link!} className="btn-primary inline-flex">
-                          Shop Now
-                        </Link>
-                      </motion.div>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </BannerWrapper>
           </motion.div>
         </AnimatePresence>
         <SliderControls current={current} total={slides.length} onPrev={prev} onNext={next} onDot={setCurrent} />

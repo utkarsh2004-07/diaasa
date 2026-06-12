@@ -11,7 +11,7 @@ const BENEFITS = [
   { icon: Truck, title: "Free Shipping", desc: "On orders above ₹500" },
   { icon: ShieldCheck, title: "100% Authentic", desc: "Genuine products always" },
   { icon: RefreshCw, title: "Easy Returns", desc: "7-day hassle free returns" },
-  { icon: Headphones, title: "9 AM – 6 PM Support", desc: "Mon–Sat, we're here to help" },
+  { icon: Headphones, title: "10 AM – 6 PM Support", desc: "Mon–Sat, we're here to help" },
 ];
 
 export function BenefitsBar() {
@@ -50,19 +50,10 @@ export function BenefitsBar() {
 }
 
 // ─── CategoryStrip ────────────────────────────────────────
-interface Category { id: string; name: string; slug: string; image?: string | null; }
+interface Category { id: string; name: string; slug: string; image?: string | null; productCount?: number; }
 
 export function CategoryStrip({ categories }: { categories: Category[] }) {
-  const fallback = [
-    { id: "1", name: "Skincare", slug: "skincare", color: "bg-rose-50" },
-    { id: "2", name: "Haircare", slug: "haircare", color: "bg-amber-50" },
-    { id: "3", name: "Body Care", slug: "body-care", color: "bg-green-50" },
-    { id: "4", name: "Wellness", slug: "wellness", color: "bg-blue-50" },
-    { id: "5", name: "Fragrance", slug: "fragrance", color: "bg-purple-50" },
-    { id: "6", name: "Tools", slug: "tools", color: "bg-charcoal-50" },
-  ];
-
-  const items = categories.length > 0 ? categories : fallback;
+  if (!categories.length) return null;
 
   return (
     <section className="py-12 md:py-16">
@@ -76,34 +67,51 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
           Shop by Category
         </motion.h2>
         <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-          {items.map((cat, i) => (
-            <motion.div
-              key={cat.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="w-[calc(50%-8px)] sm:w-44"
-            >
-              <Link
-                href={`/products?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-4 p-6 rounded-2xl bg-cream-100 hover:bg-cream-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
-              >
+          {categories.map((cat, i) => {
+            const hasProducts = (cat.productCount ?? 0) > 0;
+            const inner = (
+              <div className={`group flex flex-col items-center gap-4 p-6 rounded-2xl transition-all duration-300 ${
+                hasProducts
+                  ? "bg-cream-100 hover:bg-cream-200 hover:-translate-y-1 hover:shadow-soft cursor-pointer"
+                  : "bg-charcoal-50 opacity-50 cursor-not-allowed"
+              }`}>
                 <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white shadow-soft flex items-center justify-center overflow-hidden">
-                  {(cat as { image?: string | null }).image ? (
-                    <Image src={(cat as { image: string }).image} alt={cat.name} width={144} height={144} className="object-cover w-full h-full rounded-full" />
+                  {cat.image ? (
+                    <Image src={cat.image} alt={cat.name} width={144} height={144} className="object-cover w-full h-full rounded-full" />
                   ) : (
-                    <span className="font-display text-4xl text-charcoal-400">
-                      {cat.name.charAt(0)}
-                    </span>
+                    <span className="font-display text-4xl text-charcoal-400">{cat.name.charAt(0)}</span>
                   )}
                 </div>
-                <span className="font-body text-base font-semibold text-charcoal-700 text-center group-hover:text-brand-600 transition-colors">
-                  {cat.name}
-                </span>
-              </Link>
-            </motion.div>
-          ))}
+                <div className="text-center">
+                  <span className={`font-body text-base font-semibold text-center transition-colors ${
+                    hasProducts ? "text-charcoal-700 group-hover:text-brand-600" : "text-charcoal-400"
+                  }`}>
+                    {cat.name}
+                  </span>
+                  {!hasProducts && (
+                    <p className="font-body text-[10px] text-charcoal-400 mt-0.5">Coming Soon</p>
+                  )}
+                </div>
+              </div>
+            );
+
+            return (
+              <motion.div
+                key={cat.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.06 }}
+                className="w-[calc(50%-8px)] sm:w-44"
+              >
+                {hasProducts ? (
+                  <Link href={`/products?category=${cat.slug}`}>{inner}</Link>
+                ) : (
+                  <div>{inner}</div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

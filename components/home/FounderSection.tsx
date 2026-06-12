@@ -70,7 +70,7 @@ export function FounderSection() {
 
             <blockquote className="border-l-4 border-brand-400 pl-5 py-1">
               <p className="font-display text-xl md:text-2xl font-light text-charcoal-800 italic leading-snug">
-                "Because Good skincare shouldn't be complicated — it should simply work."
+                "Because good skincare shouldn't be complicated — it should simply work."
               </p>
             </blockquote>
 

@@ -15,7 +15,12 @@ const getHomeData = unstable_cache(
   async () => {
     const [banners, categories, featured, bestSellers, newArrivals, reviews, socialPosts] = await Promise.all([
       prisma.banner.findMany({ where: { type: "HERO", isActive: true }, orderBy: { priority: "asc" }, take: 5 }),
-      prisma.category.findMany({ where: { isActive: true, parentId: null }, orderBy: { sortOrder: "asc" }, take: 6 }),
+      prisma.category.findMany({ 
+        where: { isActive: true, parentId: null }, 
+        orderBy: { sortOrder: "asc" }, 
+        take: 6,
+        include: { _count: { select: { products: { where: { isActive: true } } } } }
+      }),
       prisma.product.findMany({
         where: { isActive: true, isFeatured: true },
         include: { images: { orderBy: { sortOrder: "asc" }, take: 2 }, variants: { where: { isActive: true }, orderBy: { price: "asc" }, take: 1 }, _count: { select: { reviews: { where: { status: "APPROVED" } } } } },
@@ -69,7 +74,7 @@ export default async function HomePage() {
       <main>
         <HeroSection banners={data.banners} />
         <BenefitsBar />
-        <CategoryStrip categories={data.categories} />
+        <CategoryStrip categories={data.categories.map(c => ({ ...c, productCount: c._count.products }))} />
         <FeaturedProducts products={data.featured.map(mapProduct)} />
         <PromoSection />
         <BestSellers products={data.bestSellers.map(mapProduct)} />

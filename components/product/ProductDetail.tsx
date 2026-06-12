@@ -610,7 +610,7 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                 All our products are independently tested by certified laboratories to ensure purity, safety, and quality. Our lab reports confirm that every product meets the highest standards before reaching you.
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
-                {["Dermatologically Tested", "No Harmful Chemicals", "Quality Assured", "Safe Ingredients"].map((tag) => (
+                {["Quality Evaluated", "Carefully Curated", "Inspired by Ayurvedic Traditions", "Crafted for Everyday Use"].map((tag) => (
                   <span key={tag} className="font-body text-xs text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
                     ✓ {tag}
                   </span>
