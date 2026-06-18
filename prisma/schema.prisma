@@ -31,6 +31,7 @@ model User {
   sessions    Session[]
   otpRequests OtpRequest[]
   auditLogs   AuditLog[]
+  blogPosts   BlogPost[]
 
   @@index([phone])
   @@index([email])
@@ -542,6 +543,38 @@ model Setting {
   @@index([key])
   @@index([group])
   @@map("settings")
+}
+
+// ─────────────────────────────────────────
+// BLOG
+// ─────────────────────────────────────────
+
+model BlogPost {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  excerpt     String?     @db.Text
+  content     String      @db.LongText
+  coverImage  String?
+  authorId    String
+  status      BlogStatus  @default(DRAFT)
+  tags        String?     @db.Text
+  metaTitle   String?
+  metaDesc    String?
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@map("blog_posts")
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
 }
 
 // ─────────────────────────────────────────

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Tag, Star,
   Image, FileText, Settings, BarChart2, FolderOpen, Layers,
-  LogOut, Menu, X, Instagram,
+  LogOut, Menu, X, Instagram, BookOpen,
 } from "lucide-react";
 
 const NAV = [
@@ -18,6 +18,7 @@ const NAV = [
   { label: "Reviews", href: "/admin/reviews", icon: Star },
   { label: "Coupons", href: "/admin/coupons", icon: Tag },
   { label: "Banners", href: "/admin/banners", icon: Image },
+  { label: "Blog", href: "/admin/blog", icon: BookOpen },
   { label: "Social Posts", href: "/admin/social", icon: Instagram },
   { label: "Pages", href: "/admin/pages", icon: FileText },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart2 },

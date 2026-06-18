@@ -5,8 +5,8 @@ import { Instagram, Facebook, Linkedin } from "lucide-react";
 const links = {
   "Quick Links": [
     { label: "About Us", href: "/pages/about" },
+    { label: "Blog", href: "/blog" },
     { label: "Lab Certificate", href: "/lab-certificate" },
-    // { label: "Blog", href: "/blog" },
     { label: "Careers", href: "/pages/careers" },
   ],
   "Customer Care": [

@@ -63,7 +63,7 @@ export function PromoSection() {
         <div className="grid md:grid-cols-2 gap-5">
           {[
             {
-              title: "Sunscreen Range",
+              title: "Sun Protection",
               subtitle: "Shield your skin every day",
               cta: "Shop Now",
               href: "/products?q=sunscreen",

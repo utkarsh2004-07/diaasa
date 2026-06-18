@@ -607,7 +607,7 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                 <p className="font-body text-sm font-semibold text-charcoal-800">Certified by Accredited Laboratory</p>
               </div>
               <p className="font-body text-sm text-charcoal-600 leading-relaxed">
-                All our products are independently tested by certified laboratories to ensure purity, safety, and quality. Our lab reports confirm that every product meets the highest standards before reaching you.
+                Every DIAASA product is carefully curated and quality evaluated to maintain high standards of craftsmanship, consistency, and everyday skincare comfort.
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {["Quality Evaluated", "Carefully Curated", "Inspired by Ayurvedic Traditions", "Crafted for Everyday Use"].map((tag) => (

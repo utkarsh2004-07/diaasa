@@ -8,5 +8,7 @@ export const TAGS = {
   settings:    "settings",
   pages:       "pages",
   coupons:     "coupons",
+  blog:        "blog",
   product:     (slug: string) => `product-${slug}`,
+  blogPost:    (slug: string) => `blog-${slug}`,
 } as const;

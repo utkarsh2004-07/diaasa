@@ -89,7 +89,7 @@ export function CategoryStrip({ categories }: { categories: Category[] }) {
                     {cat.name}
                   </span>
                   {!hasProducts && (
-                    <p className="font-body text-[10px] text-charcoal-400 mt-0.5">Coming Soon</p>
+                    <p className="font-body text-[12px] font-black text-black">Coming Soon</p>
                   )}
                 </div>
               </div>

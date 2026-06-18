@@ -18,6 +18,7 @@ import { useCartStore } from "@/store/cartStore";
 import { useAuthStore } from "@/store/authStore";
 
 const NAV_LINKS = [
+  { label: "Home", href: "/" },
   {
     label: "Shop",
     href: "/products",
