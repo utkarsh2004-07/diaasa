@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
         publishedAt: status === "PUBLISHED" ? new Date() : null,
       },
     });
-    revalidateTag(TAGS.blog);
+    revalidateTag(TAGS.blog, "max");
     return successResponse({ post }, "Blog post created", 201);
   } catch (e) {
     console.error(e);

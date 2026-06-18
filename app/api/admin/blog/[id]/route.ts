@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { successResponse, unauthorizedResponse, serverErrorResponse, errorResponse } from "@/lib/response";
 import { revalidateTag } from "next/cache";
-import { TAGS } from "@/lib/cache";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -28,8 +27,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
         publishedAt: nowPublished && !wasPublished ? new Date() : existing.publishedAt,
       },
     });
-    revalidateTag(TAGS.blog);
-    revalidateTag(TAGS.blogPost(existing.slug));
+    revalidateTag("blog", "max");
+    revalidateTag(`blog-${existing.slug}`, "max");
     return successResponse({ post }, "Updated");
   } catch (e) {
     console.error(e);
@@ -45,8 +44,8 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const post = await prisma.blogPost.findUnique({ where: { id } });
     if (!post) return errorResponse("NOT_FOUND", "Post not found", 404);
     await prisma.blogPost.delete({ where: { id } });
-    revalidateTag(TAGS.blog);
-    revalidateTag(TAGS.blogPost(post.slug));
+    revalidateTag("blog", "max");
+    revalidateTag(`blog-${post.slug}`, "max");
     return successResponse(null, "Deleted");
   } catch (e) {
     console.error(e);

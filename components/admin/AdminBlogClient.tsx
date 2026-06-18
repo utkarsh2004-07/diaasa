@@ -27,9 +27,13 @@ interface BlogPost {
 
 interface Props { initialPosts: BlogPost[]; }
 
-const EMPTY = {
+const EMPTY: {
+  title: string; slug: string; excerpt: string; content: string;
+  coverImage: string; tags: string; status: "DRAFT" | "PUBLISHED";
+  metaTitle: string; metaDesc: string;
+} = {
   title: "", slug: "", excerpt: "", content: "",
-  coverImage: "", tags: "", status: "DRAFT" as const,
+  coverImage: "", tags: "", status: "DRAFT",
   metaTitle: "", metaDesc: "",
 };
 
