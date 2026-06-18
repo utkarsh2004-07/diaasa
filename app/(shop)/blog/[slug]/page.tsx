@@ -9,14 +9,22 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 interface Props { params: Promise<{ slug: string }>; }
 
 const getPost = (slug: string) =>
   unstable_cache(
-    async () => prisma.blogPost.findFirst({
-      where: { slug, status: "PUBLISHED" },
-      include: { author: { select: { name: true, avatar: true } } },
-    }),
+    async () => {
+      try {
+        return await prisma.blogPost.findFirst({
+          where: { slug, status: "PUBLISHED" },
+          include: { author: { select: { name: true, avatar: true } } },
+        });
+      } catch {
+        return null;
+      }
+    },
     [`blog-post-page-${slug}`],
     { revalidate: 3600, tags: [TAGS.blog, TAGS.blogPost(slug)] }
   )();

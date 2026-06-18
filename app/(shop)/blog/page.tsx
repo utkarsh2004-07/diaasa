@@ -1,6 +1,4 @@
-import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { TAGS } from "@/lib/cache";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Tag, ArrowRight } from "lucide-react";
@@ -13,20 +11,24 @@ export const metadata: Metadata = {
   description: "Skincare tips, ingredient guides, and beauty advice from Diaasa.",
 };
 
-const getPosts = unstable_cache(
-  async () => prisma.blogPost.findMany({
-    where: { status: "PUBLISHED" },
-    select: {
-      id: true, title: true, slug: true, excerpt: true,
-      coverImage: true, tags: true, publishedAt: true, createdAt: true,
-      author: { select: { name: true } },
-    },
-    orderBy: { publishedAt: "desc" },
-    take: 50,
-  }),
-  ["blog-list-page"],
-  { revalidate: 3600, tags: [TAGS.blog] }
-);
+export const dynamic = "force-dynamic";
+
+const getPosts = async () => {
+  try {
+    return await prisma.blogPost.findMany({
+      where: { status: "PUBLISHED" },
+      select: {
+        id: true, title: true, slug: true, excerpt: true,
+        coverImage: true, tags: true, publishedAt: true, createdAt: true,
+        author: { select: { name: true } },
+      },
+      orderBy: { publishedAt: "desc" },
+      take: 50,
+    });
+  } catch {
+    return [];
+  }
+};
 
 export default async function BlogPage() {
   const posts = await getPosts();
