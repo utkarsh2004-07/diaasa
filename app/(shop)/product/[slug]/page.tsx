@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   // fetch active coupons to show on product page
   const coupons = await prisma.coupon.findMany({
-    where: { isActive: true, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
+    where: { isActive: true, isPublic: true, OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] },
     select: { code: true, type: true, value: true, minCartValue: true, description: true },
     take: 5,
   });

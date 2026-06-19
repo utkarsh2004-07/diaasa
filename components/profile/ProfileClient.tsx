@@ -49,10 +49,10 @@ export default function ProfileClient({ user, orders, addresses: initial }: Prop
   const [savingAddr, setSavingAddr] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const navItems = [
-    { id: "orders" as Tab, label: "My Orders", icon: Package, count: orders.length },
-    { id: "addresses" as Tab, label: "Addresses", icon: MapPin, count: addresses.length },
-    { id: "account" as Tab, label: "Account Settings", icon: User },
+  const navItems: { id: Tab; label: string; icon: React.ElementType; count?: number }[] = [
+    { id: "orders", label: "My Orders", icon: Package, count: orders.length },
+    { id: "addresses", label: "Addresses", icon: MapPin, count: addresses.length },
+    { id: "account", label: "Account Settings", icon: User },
   ];
 
   const [displayName, setDisplayName] = useState(user.name || "");

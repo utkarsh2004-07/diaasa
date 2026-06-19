@@ -9,13 +9,13 @@ interface Coupon {
   id: string; code: string; type: string; value: number;
   minCartValue: number; maxDiscount?: number | null;
   usageLimit?: number | null; usedCount: number;
-  isActive: boolean; expiresAt?: Date | null; description?: string | null;
+  isActive: boolean; isPublic: boolean; expiresAt?: Date | null; description?: string | null;
 }
 
 const EMPTY = {
   code: "", type: "PERCENTAGE", value: 10,
   minCartValue: 0, maxDiscount: "", usageLimit: "",
-  description: "", expiresAt: "", isActive: true,
+  description: "", expiresAt: "", isActive: true, isPublic: true,
 };
 
 export default function AdminCouponsClient({ coupons: initial }: { coupons: Coupon[] }) {
@@ -51,16 +51,16 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
     } finally { setSaving(false); }
   };
 
-  const toggleActive = async (id: string, isActive: boolean) => {
+  const toggleField = async (id: string, field: "isActive" | "isPublic", current: boolean) => {
     try {
       const res = await fetch(`/api/admin/coupons/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !isActive }),
+        body: JSON.stringify({ [field]: !current }),
       });
       const data = await res.json();
       if (data.success) {
-        setCoupons((cs) => cs.map((c) => c.id === id ? { ...c, isActive: !isActive } : c));
+        setCoupons((cs) => cs.map((c) => c.id === id ? { ...c, [field]: !current } : c));
       }
     } catch { toast.error("Failed to update"); }
   };
@@ -159,6 +159,23 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
                       onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                       placeholder="Optional description" className="input-base" />
                   </div>
+                  <div className="col-span-2 flex items-center justify-between p-3 rounded-xl bg-charcoal-50">
+                    <div>
+                      <p className="font-body text-xs font-semibold text-charcoal-700">Show on Product Page</p>
+                      <p className="font-body text-[11px] text-charcoal-400 mt-0.5">Toggle off to hide from customers</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, isPublic: !f.isPublic }))}
+                      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                        form.isPublic ? "bg-brand-500" : "bg-charcoal-200"
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                        form.isPublic ? "translate-x-5" : "translate-x-0.5"
+                      }`} />
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" disabled={saving}
                   className="btn-primary w-full py-3">
@@ -218,12 +235,26 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <button
-                onClick={() => toggleActive(coupon.id, coupon.isActive)}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${coupon.isActive ? "bg-brand-500" : "bg-charcoal-200"}`}
-              >
-                <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${coupon.isActive ? "translate-x-5" : "translate-x-0.5"}`} />
-              </button>
+              <div className="flex flex-col items-center gap-1">
+                <button
+                  title="Active / Inactive"
+                  onClick={() => toggleField(coupon.id, "isActive", coupon.isActive)}
+                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${coupon.isActive ? "bg-brand-500" : "bg-charcoal-200"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${coupon.isActive ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+                <span className="font-body text-[10px] text-charcoal-400">Active</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <button
+                  title="Show / Hide on product page"
+                  onClick={() => toggleField(coupon.id, "isPublic", coupon.isPublic)}
+                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${coupon.isPublic ? "bg-green-500" : "bg-charcoal-200"}`}
+                >
+                  <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${coupon.isPublic ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+                <span className="font-body text-[10px] text-charcoal-400">Visible</span>
+              </div>
               <button onClick={() => deleteCoupon(coupon.id)}
                 className="w-8 h-8 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center transition-colors">
                 <Trash2 size={14} />

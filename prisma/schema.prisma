@@ -446,6 +446,7 @@ model Coupon {
   usageLimit   Int?
   usedCount    Int        @default(0)
   isActive     Boolean    @default(true)
+  isPublic     Boolean    @default(true)
   expiresAt    DateTime?
   description  String?
   createdAt    DateTime   @default(now())
