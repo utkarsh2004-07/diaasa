@@ -167,17 +167,16 @@ export default function LoginPage() {
                 </p>
 
                 <form onSubmit={handleSendOTP} className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                      <span className="font-body text-sm font-medium text-charcoal-700 whitespace-nowrap">🇮🇳 +91</span>
-                      <div className="w-px h-5 bg-charcoal-200" />
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 min-w-[108px] items-center justify-center rounded-2xl border border-charcoal-200 bg-white px-4 text-charcoal-700 shadow-sm">
+                      <span className="font-body text-sm font-medium">🇮🇳 +91</span>
                     </div>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="10-digit mobile number"
-                      className="input-base pl-[88px] text-base tracking-widest"
+                      className="input-base flex-1 h-12 text-base tracking-widest"
                       autoFocus
                       maxLength={10}
                     />
@@ -199,6 +198,8 @@ export default function LoginPage() {
                     ) : "Get OTP"}
                   </button>
                 </form>
+
+                
 
                 <p className="mt-6 font-body text-xs text-charcoal-400 text-center leading-relaxed">
                   By continuing, you agree to our{" "}
