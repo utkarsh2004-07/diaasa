@@ -16,3 +16,16 @@ export async function PATCH(
     return successResponse({ review }, "Review updated");
   } catch { return serverErrorResponse(); }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await requireAdmin().catch(() => null);
+    if (!session) return unauthorizedResponse();
+    const { id } = await params;
+    await prisma.review.delete({ where: { id } });
+    return successResponse({}, "Review deleted");
+  } catch { return serverErrorResponse(); }
+}

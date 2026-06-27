@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Check, X } from "lucide-react";
+import { Star, Check, X, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface Review {
@@ -28,6 +28,18 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
         toast.success(`Review ${status.toLowerCase()}`);
       }
     } catch { toast.error("Failed to update"); }
+  };
+
+  const deleteReview = async (id: string) => {
+    if (!confirm("Delete this review permanently?")) return;
+    try {
+      const res = await fetch(`/api/admin/reviews/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setReviews((rs) => rs.filter((r) => r.id !== id));
+        toast.success("Review deleted");
+      }
+    } catch { toast.error("Failed to delete"); }
   };
 
   const filtered = reviews.filter((r) => filter === "ALL" ? true : r.status === filter);
@@ -74,18 +86,24 @@ export default function AdminReviewsClient({ reviews: initial }: { reviews: Revi
                 <p className="font-body text-sm text-charcoal-600 mt-1">{review.message}</p>
                 <p className="font-body text-xs text-charcoal-400 mt-2">{new Date(review.createdAt).toLocaleDateString("en-IN")}</p>
               </div>
-              {review.status === "PENDING" && (
-                <div className="flex gap-2 shrink-0">
-                  <button onClick={() => moderate(review.id, "APPROVED")}
-                    className="w-9 h-9 rounded-full bg-green-50 text-green-600 hover:bg-green-100 flex items-center justify-center transition-colors">
-                    <Check size={16} />
-                  </button>
-                  <button onClick={() => moderate(review.id, "REJECTED")}
-                    className="w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors">
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
+              <div className="flex gap-2 shrink-0">
+                {review.status === "PENDING" && (
+                  <>
+                    <button onClick={() => moderate(review.id, "APPROVED")}
+                      className="w-9 h-9 rounded-full bg-green-50 text-green-600 hover:bg-green-100 flex items-center justify-center transition-colors">
+                      <Check size={16} />
+                    </button>
+                    <button onClick={() => moderate(review.id, "REJECTED")}
+                      className="w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors">
+                      <X size={16} />
+                    </button>
+                  </>
+                )}
+                <button onClick={() => deleteReview(review.id)}
+                  className="w-9 h-9 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors">
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           </div>
         ))}
