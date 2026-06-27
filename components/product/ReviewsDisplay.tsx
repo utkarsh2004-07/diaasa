@@ -161,6 +161,7 @@ export default function ReviewsDisplay({ productId, showTitle = true }: ReviewsD
                     );
                   } catch { return null; }
                 })()}
+                {/* TODO: Re-enable date display
                 <p className="font-body text-xs text-charcoal-400 mt-2">
                   {new Date(review.createdAt).toLocaleDateString("en-IN", {
                     day: "numeric",
@@ -168,6 +169,7 @@ export default function ReviewsDisplay({ productId, showTitle = true }: ReviewsD
                     year: "numeric",
                   })}
                 </p>
+                */}
               </div>
             </div>
           </div>

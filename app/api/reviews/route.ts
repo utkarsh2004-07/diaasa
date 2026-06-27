@@ -67,17 +67,17 @@ export async function POST(request: NextRequest) {
 
     const { productId, rating, title, message, images } = parsed.data;
 
-    // Check if user has delivered order with this product
-    const deliveredOrder = await prisma.orderItem.findFirst({
-      where: {
-        productId,
-        order: {
-          userId: session.userId,
-          status: "DELIVERED",
-        },
-      },
-    });
-    if (!deliveredOrder) return errorResponse("NOT_ELIGIBLE", "You can only review products from delivered orders");
+    // TODO: Re-enable after 2 days — only allow review if user has a DELIVERED order
+    // const deliveredOrder = await prisma.orderItem.findFirst({
+    //   where: {
+    //     productId,
+    //     order: {
+    //       userId: session.userId,
+    //       status: "DELIVERED",
+    //     },
+    //   },
+    // });
+    // if (!deliveredOrder) return errorResponse("NOT_ELIGIBLE", "You can only review products from delivered orders");
 
     const existing = await prisma.review.findUnique({
       where: { userId_productId: { userId: session.userId, productId } },

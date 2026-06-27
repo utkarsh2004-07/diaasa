@@ -14,6 +14,7 @@ import toast from "react-hot-toast";
 import { useCartStore } from "@/store/cartStore";
 import { useWishlistStore } from "@/store/wishlistStore";
 import ProductCard from "./ProductCard";
+import ReviewForm from "./ReviewForm";
 
 interface Variant { id: string; name: string; price: number; comparePrice?: number | null; stock: number; attributes?: unknown; }
 interface ProductImage { id: string; url: string; altText?: string | null; }
@@ -651,6 +652,9 @@ export default function ProductDetail({ product, coupons, related }: Props) {
           title="Customer Reviews"
           badge={product.reviewCount > 0 ? `${product.reviewCount}` : undefined}
         >
+          <div className="mb-6">
+            <ReviewForm productId={product.id} productName={product.name} />
+          </div>
           {product.reviewCount > 0 && (
             <div className="flex items-center gap-4 mb-6 p-4 bg-cream-50 rounded-2xl">
               <span className="font-display text-4xl sm:text-5xl font-light text-charcoal-900 shrink-0">
@@ -690,9 +694,11 @@ export default function ProductDetail({ product, coupons, related }: Props) {
                         </div>
                       </div>
                     </div>
+                    {/* TODO: Re-enable date display
                     <span className="font-body text-[11px] text-charcoal-400 shrink-0">
                       {new Date(r.createdAt).toLocaleDateString("en-IN")}
                     </span>
+                    */}
                   </div>
                   {r.title && (
                     <p className="font-body text-sm font-semibold text-charcoal-800">{r.title}</p>

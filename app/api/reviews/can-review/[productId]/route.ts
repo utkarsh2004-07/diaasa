@@ -15,19 +15,17 @@ export async function GET(
 
     const { productId } = await params;
 
-    // Check if user has delivered order with this product
-    const deliveredOrder = await prisma.orderItem.findFirst({
-      where: {
-        productId,
-        order: {
-          userId: session.userId,
-          status: "DELIVERED",
-        },
-      },
-      include: {
-        order: true,
-      },
-    });
+    // TODO: Re-enable after 2 days — only allow review if user has a DELIVERED order
+    // const deliveredOrder = await prisma.orderItem.findFirst({
+    //   where: {
+    //     productId,
+    //     order: {
+    //       userId: session.userId,
+    //       status: "DELIVERED",
+    //     },
+    //   },
+    //   include: { order: true },
+    // });
 
     // Check if user already reviewed this product
     const existingReview = await prisma.review.findUnique({
@@ -40,8 +38,8 @@ export async function GET(
     });
 
     return successResponse({
-      canReview: !!deliveredOrder && !existingReview,
-      hasDeliveredOrder: !!deliveredOrder,
+      canReview: !existingReview,          // TODO: restore to: !!deliveredOrder && !existingReview
+      hasDeliveredOrder: true,             // TODO: restore to: !!deliveredOrder
       hasExistingReview: !!existingReview,
     });
   } catch (error) {
