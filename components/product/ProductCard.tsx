@@ -124,8 +124,8 @@ export default function ProductCard({ product, index = 0, dark = false }: Props)
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300 ${hovered ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"}`}>
+          {/* Action buttons - always visible on mobile, hover on desktop */}
+          <div className={`absolute top-3 right-3 flex flex-col gap-2 transition-all duration-300 opacity-100 md:opacity-0 md:translate-x-4 ${hovered ? "md:opacity-100 md:translate-x-0" : ""}`}>
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleWishlist}
@@ -145,8 +145,8 @@ export default function ProductCard({ product, index = 0, dark = false }: Props)
             </motion.button>
           </div>
 
-          {/* Add to cart bar */}
-          <div className={`absolute bottom-0 left-0 right-0 transition-all duration-300 ${hovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}>
+          {/* Add to cart bar - always visible on mobile, hover on desktop */}
+          <div className={`absolute bottom-0 left-0 right-0 transition-all duration-300 translate-y-0 opacity-100 md:opacity-0 md:translate-y-full ${hovered ? "md:translate-y-0 md:opacity-100" : ""}`}>
             <button
               onClick={handleAddToCart}
               disabled={addingToCart || !product.inStock}
