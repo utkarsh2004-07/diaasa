@@ -6,15 +6,16 @@ import { TAGS } from "@/lib/cache";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
-import { BenefitsBar, CategoryStrip, FeaturedProducts } from "@/components/home/HomeComponents";
+import { BenefitsBar, CategoryStrip, FeaturedProducts, PromoBannerSection } from "@/components/home/HomeComponents";
 import { BestSellers, NewArrivals, PromoSection, Testimonials, InstagramGrid } from "@/components/home/SectionComponents";
 import { LabTestedSection } from "@/components/home/LabTestedSection";
 import { FounderSection } from "@/components/home/FounderSection";
 
 const getHomeData = unstable_cache(
   async () => {
-    const [banners, categories, featured, bestSellers, newArrivals, reviews, socialPosts] = await Promise.all([
+    const [banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts] = await Promise.all([
       prisma.banner.findMany({ where: { type: "HERO", isActive: true }, orderBy: { priority: "asc" }, take: 5 }),
+      prisma.banner.findMany({ where: { type: "PROMO", isActive: true }, orderBy: { priority: "asc" }, take: 3 }),
       prisma.category.findMany({ 
         where: { isActive: true, parentId: null }, 
         orderBy: { sortOrder: "asc" }, 
@@ -43,7 +44,7 @@ const getHomeData = unstable_cache(
       }),
       prisma.socialPost.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
     ]);
-    return { banners, categories, featured, bestSellers, newArrivals, reviews, socialPosts };
+    return { banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts };
   },
   ["homepage"],
   {
@@ -76,6 +77,7 @@ export default async function HomePage() {
         <BenefitsBar />
         <CategoryStrip categories={data.categories.map(c => ({ ...c, productCount: c._count.products }))} />
         <FeaturedProducts products={data.featured.map(mapProduct)} />
+        <PromoBannerSection banners={data.promoBanners} />
         <PromoSection />
         <BestSellers products={data.bestSellers.map(mapProduct)} />
         <NewArrivals products={data.newArrivals.map(mapProduct)} />

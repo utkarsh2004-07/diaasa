@@ -157,3 +157,58 @@ export function FeaturedProducts({ products }: { products: ProductProps[] }) {
     </section>
   );
 }
+
+// ─── PromoBannerSection ────────────────────────────────────────
+interface PromoBanner { id: string; image: string; mobileImage?: string | null; link?: string | null; title?: string | null; }
+
+export function PromoBannerSection({ banners }: { banners: PromoBanner[] }) {
+  if (!banners.length) return null;
+
+  return (
+    <section className="py-8 md:py-12 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+        {banners.map((banner, i) => {
+          const inner = (
+            <motion.div
+              key={banner.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="relative w-full overflow-hidden rounded-2xl"
+            >
+              {/* desktop image */}
+              <Image
+                src={banner.image}
+                alt={banner.title || "Promo Banner"}
+                width={1400}
+                height={400}
+                className={`w-full object-cover ${banner.mobileImage ? "hidden sm:block" : "block"}`}
+                priority={i === 0}
+              />
+              {/* mobile image */}
+              {banner.mobileImage && (
+                <Image
+                  src={banner.mobileImage}
+                  alt={banner.title || "Promo Banner"}
+                  width={800}
+                  height={400}
+                  className="w-full object-cover sm:hidden"
+                  priority={i === 0}
+                />
+              )}
+            </motion.div>
+          );
+
+          return banner.link ? (
+            <a key={banner.id} href={banner.link} target="_blank" rel="noopener noreferrer" className="block hover:opacity-95 transition-opacity">
+              {inner}
+            </a>
+          ) : (
+            <div key={banner.id}>{inner}</div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
