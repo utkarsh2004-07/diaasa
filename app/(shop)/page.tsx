@@ -10,10 +10,11 @@ import { BenefitsBar, CategoryStrip, FeaturedProducts, PromoBannerSection } from
 import { BestSellers, NewArrivals, PromoSection, Testimonials, InstagramGrid } from "@/components/home/SectionComponents";
 import { LabTestedSection } from "@/components/home/LabTestedSection";
 import { FounderSection } from "@/components/home/FounderSection";
+import { CouponStrip } from "@/components/home/CouponStrip";
 
 const getHomeData = unstable_cache(
   async () => {
-    const [banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts] = await Promise.all([
+    const [banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts, coupons] = await Promise.all([
       prisma.banner.findMany({ where: { type: "HERO", isActive: true }, orderBy: { priority: "asc" }, take: 5 }),
       prisma.banner.findMany({ where: { type: "PROMO", isActive: true }, orderBy: { priority: "asc" }, take: 3 }),
       prisma.category.findMany({ 
@@ -43,8 +44,18 @@ const getHomeData = unstable_cache(
         orderBy: { createdAt: "desc" }, take: 6,
       }),
       prisma.socialPost.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
+      prisma.coupon.findMany({
+        where: {
+          isActive: true,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+          description: { startsWith: "[HOME]" },
+        },
+        select: { code: true, type: true, value: true, description: true, minCartValue: true, maxDiscount: true },
+        orderBy: { createdAt: "asc" },
+        take: 4,
+      }),
     ]);
-    return { banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts };
+    return { banners, promoBanners, categories, featured, bestSellers, newArrivals, reviews, socialPosts, coupons };
   },
   ["homepage"],
   {
@@ -76,6 +87,7 @@ export default async function HomePage() {
         <HeroSection banners={data.banners} />
         <BenefitsBar />
         <CategoryStrip categories={data.categories.map(c => ({ ...c, productCount: c._count.products }))} />
+        <CouponStrip coupons={data.coupons.map(c => ({ ...c, description: c.description?.replace("[HOME]", "").trim() || null }))} />
         <FeaturedProducts products={data.featured.map(mapProduct)} />
         <PromoBannerSection banners={data.promoBanners} />
         <PromoSection />

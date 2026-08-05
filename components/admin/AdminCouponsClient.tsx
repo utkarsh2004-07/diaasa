@@ -158,6 +158,13 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
                     <input value={form.description as string}
                       onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                       placeholder="Optional description" className="input-base" />
+                    <div className="mt-1.5 flex items-start gap-1.5 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                      <span className="text-amber-500 text-sm mt-0.5">💡</span>
+                      <p className="font-body text-[11px] text-amber-700 leading-snug">
+                        Start description with <span className="font-bold font-mono">[HOME]</span> to show this coupon on the homepage offers strip.<br />
+                        Example: <span className="font-mono font-semibold">[HOME] Buy any 2 soaps and get 10% off</span>
+                      </p>
+                    </div>
                   </div>
                   <div className="col-span-2 flex items-center justify-between p-3 rounded-xl bg-charcoal-50">
                     <div>
