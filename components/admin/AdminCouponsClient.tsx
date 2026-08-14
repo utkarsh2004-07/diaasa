@@ -32,8 +32,8 @@ export default function AdminCouponsClient({ coupons: initial, products }: { cou
 
   const addReqProduct = () => setReqProducts((p) => [...p, { productId: "", quantity: 1 }]);
   const removeReqProduct = (i: number) => setReqProducts((p) => p.filter((_, idx) => idx !== i));
-  const updateReqProduct = (i: number, val: string) =>
-    setReqProducts((p) => p.map((item, idx) => idx === i ? { ...item, productId: val } : item));
+  const updateReqProduct = (i: number, field: "productId" | "quantity", val: string | number) =>
+    setReqProducts((p) => p.map((item, idx) => idx === i ? { ...item, [field]: val } : item));
 
   const resetForm = () => { setForm(EMPTY); setReqProducts([]); };
 
@@ -203,7 +203,7 @@ export default function AdminCouponsClient({ coupons: initial, products }: { cou
                         <div key={i} className="flex gap-2 items-center">
                           <select
                             value={rp.productId}
-                            onChange={(e) => updateReqProduct(i, e.target.value)}
+                            onChange={(e) => updateReqProduct(i, "productId", e.target.value)}
                             className="input-base flex-1 text-sm"
                             required
                           >
@@ -212,8 +212,17 @@ export default function AdminCouponsClient({ coupons: initial, products }: { cou
                               <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                           </select>
+                          <div className="flex flex-col items-center shrink-0">
+                            <span className="font-body text-[10px] text-charcoal-400 mb-0.5">Qty</span>
+                            <input
+                              type="number" min={1} max={20}
+                              value={rp.quantity}
+                              onChange={(e) => updateReqProduct(i, "quantity", Number(e.target.value))}
+                              className="input-base w-14 text-sm text-center px-1"
+                            />
+                          </div>
                           <button type="button" onClick={() => removeReqProduct(i)}
-                            className="w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center shrink-0">
+                            className="w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center shrink-0 mt-3">
                             <X size={12} />
                           </button>
                         </div>

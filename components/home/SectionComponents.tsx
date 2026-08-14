@@ -190,7 +190,7 @@ export function InstagramGrid({ posts }: { posts: SocialPost[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-10">
           <p className="font-body text-xs tracking-widest uppercase text-brand-600 mb-2">Follow Us</p>
-          <h2 className="section-title">@DiaasaStore</h2>
+          <h2 className="section-title">@Diaasabeauty</h2>
         </motion.div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
           {posts.map((post, i) => {
