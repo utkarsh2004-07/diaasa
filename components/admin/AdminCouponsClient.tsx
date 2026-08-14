@@ -10,24 +10,38 @@ interface Coupon {
   minCartValue: number; maxDiscount?: number | null;
   usageLimit?: number | null; usedCount: number;
   isActive: boolean; isPublic: boolean; expiresAt?: Date | null; description?: string | null;
+  requiredProducts?: unknown; allowExtraProducts?: boolean;
 }
+
+interface Product { id: string; name: string; }
 
 const EMPTY = {
   code: "", type: "PERCENTAGE", value: 10,
   minCartValue: 0, maxDiscount: "", usageLimit: "",
   description: "", expiresAt: "", isActive: true, isPublic: true,
+  allowExtraProducts: true,
 };
 
-export default function AdminCouponsClient({ coupons: initial }: { coupons: Coupon[] }) {
+export default function AdminCouponsClient({ coupons: initial, products }: { coupons: Coupon[]; products: Product[] }) {
   const [coupons, setCoupons] = useState(initial);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<Record<string, unknown>>(EMPTY);
   const [saving, setSaving] = useState(false);
+  // requiredProducts: [{productId, quantity}]
+  const [reqProducts, setReqProducts] = useState<{ productId: string; quantity: number }[]>([]);
+
+  const addReqProduct = () => setReqProducts((p) => [...p, { productId: "", quantity: 1 }]);
+  const removeReqProduct = (i: number) => setReqProducts((p) => p.filter((_, idx) => idx !== i));
+  const updateReqProduct = (i: number, val: string) =>
+    setReqProducts((p) => p.map((item, idx) => idx === i ? { ...item, productId: val } : item));
+
+  const resetForm = () => { setForm(EMPTY); setReqProducts([]); };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
+      const validReqProducts = reqProducts.filter((r) => r.productId);
       const res = await fetch("/api/admin/coupons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,13 +53,15 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
           usageLimit: form.usageLimit ? Number(form.usageLimit) : null,
           expiresAt: form.expiresAt || null,
           code: (form.code as string).toUpperCase().trim(),
+          requiredProducts: validReqProducts.length ? validReqProducts : null,
+          allowExtraProducts: form.allowExtraProducts,
         }),
       });
       const data = await res.json();
       if (data.success) {
         setCoupons((c) => [data.data.coupon, ...c]);
         setShowForm(false);
-        setForm(EMPTY);
+        resetForm();
         toast.success("Coupon created!");
       } else toast.error(data.error?.message || "Failed");
     } finally { setSaving(false); }
@@ -94,16 +110,19 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-white rounded-2xl shadow-strong w-full max-w-md p-6"
+              className="bg-white rounded-2xl shadow-strong w-full max-w-md flex flex-col max-h-[90vh]"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between mb-5">
+              {/* sticky header */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-charcoal-100 shrink-0">
                 <h2 className="font-body text-lg font-semibold text-charcoal-900 flex items-center gap-2">
                   <Tag size={18} className="text-brand-500" /> New Coupon
                 </h2>
-                <button onClick={() => setShowForm(false)}><X size={20} className="text-charcoal-400" /></button>
+                <button onClick={() => { setShowForm(false); resetForm(); }}><X size={20} className="text-charcoal-400" /></button>
               </div>
 
+              {/* scrollable body */}
+              <div className="overflow-y-auto flex-1 px-6 py-4">
               <form onSubmit={handleCreate} className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
@@ -166,6 +185,60 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
                       </p>
                     </div>
                   </div>
+
+                  {/* ── Required Products ── */}
+                  <div className="col-span-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="font-body text-xs font-medium text-charcoal-600">Required Products (optional)</label>
+                      <button type="button" onClick={addReqProduct}
+                        className="font-body text-xs text-brand-600 hover:text-brand-700 font-semibold flex items-center gap-1">
+                        <Plus size={12} /> Add Product
+                      </button>
+                    </div>
+                    {reqProducts.length === 0 && (
+                      <p className="font-body text-[11px] text-charcoal-400">No required products — coupon works on any cart.</p>
+                    )}
+                    <div className="space-y-2">
+                      {reqProducts.map((rp, i) => (
+                        <div key={i} className="flex gap-2 items-center">
+                          <select
+                            value={rp.productId}
+                            onChange={(e) => updateReqProduct(i, e.target.value)}
+                            className="input-base flex-1 text-sm"
+                            required
+                          >
+                            <option value="">Select product…</option>
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                          <button type="button" onClick={() => removeReqProduct(i)}
+                            className="w-7 h-7 rounded-full bg-red-50 text-red-400 hover:bg-red-100 flex items-center justify-center shrink-0">
+                            <X size={12} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    {reqProducts.length > 0 && (
+                      <div className="mt-3 flex items-center justify-between p-3 rounded-xl bg-charcoal-50">
+                        <div>
+                          <p className="font-body text-xs font-semibold text-charcoal-700">Allow Extra Products</p>
+                          <p className="font-body text-[11px] text-charcoal-400">OFF = cart must contain ONLY these products</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, allowExtraProducts: !f.allowExtraProducts }))}
+                          className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${
+                            form.allowExtraProducts ? "bg-brand-500" : "bg-charcoal-200"
+                          }`}
+                        >
+                          <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200 ${
+                            form.allowExtraProducts ? "translate-x-5" : "translate-x-0.5"
+                          }`} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <div className="col-span-2 flex items-center justify-between p-3 rounded-xl bg-charcoal-50">
                     <div>
                       <p className="font-body text-xs font-semibold text-charcoal-700">Show on Product Page</p>
@@ -189,6 +262,7 @@ export default function AdminCouponsClient({ coupons: initial }: { coupons: Coup
                   {saving ? "Creating…" : "Create Coupon"}
                 </button>
               </form>
+              </div>
             </motion.div>
           </motion.div>
         )}

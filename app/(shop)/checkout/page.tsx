@@ -94,10 +94,17 @@ export default function CheckoutPage() {
     if (!couponCode.trim()) return;
     setCouponLoading(true);
     try {
-      const res = await fetch("/api/coupons", {
+      const res = await fetch("/api/coupons/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: couponCode, cartTotal: subtotal }),
+        body: JSON.stringify({
+          code: couponCode,
+          items: items.map((i) => ({
+            productId: i.productId,
+            variantId: i.variantId,
+            quantity: i.quantity,
+          })),
+        }),
       });
       const data = await res.json();
       if (data.success) {
@@ -105,6 +112,7 @@ export default function CheckoutPage() {
         toast.success(data.message);
       } else {
         toast.error(data.error?.message || "Invalid coupon");
+        setCouponData(null);
       }
     } finally { setCouponLoading(false); }
   };
@@ -182,7 +190,7 @@ export default function CheckoutPage() {
 
   const shippingCost = subtotal >= 500 ? 0 : 49;
   const discount = couponData?.discount || 0;
-  const finalTotal = total + shippingCost - discount;
+  const finalTotal = Math.max(total + shippingCost - discount, 0);
 
   return (
     <>

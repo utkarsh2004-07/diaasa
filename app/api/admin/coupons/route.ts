@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const session = await requireAdmin().catch(() => null);
     if (!session) return unauthorizedResponse();
     const body = await request.json();
-    const { code, type, value, minCartValue, maxDiscount, usageLimit, description, expiresAt, isActive, isPublic } = body;
+    const { code, type, value, minCartValue, maxDiscount, usageLimit, description, expiresAt, isActive, isPublic, requiredProducts, allowExtraProducts } = body;
 
     if (!code || !value) return errorResponse("VALIDATION_ERROR", "Code and value are required");
 
@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
         expiresAt: expiresAt ? new Date(expiresAt) : null,
         isActive: isActive ?? true,
         isPublic: isPublic ?? true,
+        requiredProducts: requiredProducts?.length ? requiredProducts : null,
+        allowExtraProducts: allowExtraProducts ?? true,
       },
     });
     return successResponse({ coupon }, "Coupon created", 201);

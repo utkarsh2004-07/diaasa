@@ -5,6 +5,7 @@ import { createRazorpayOrder } from "@/lib/razorpay";
 import { calculateCartGST } from "@/lib/gst";
 import { checkRateLimit } from "@/lib/ratelimit";
 import { sendOrderConfirmedEmail } from "@/lib/email";
+import { validateCoupon, calcShipping } from "@/lib/coupon-engine";
 import {
   successResponse, errorResponse, unauthorizedResponse, serverErrorResponse,
 } from "@/lib/response";
@@ -28,7 +29,6 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession();
     if (!session) return unauthorizedResponse();
 
-    // Rate limit: max 5 orders per user per hour
     const ip = request.headers.get("x-forwarded-for") || "unknown";
     const rl = checkRateLimit({ key: `checkout:${session.userId}:${ip}`, limit: 5, windowMs: 60 * 60 * 1000 });
     if (!rl.allowed) return errorResponse("RATE_LIMIT", "Too many orders. Please try again later.", 429);
@@ -40,13 +40,9 @@ export async function POST(request: NextRequest) {
 
     const { addressId, paymentMethod, couponCode, notes } = parsed.data;
 
-    // Validate address belongs to user
-    const address = await prisma.address.findFirst({
-      where: { id: addressId, userId: session.userId },
-    });
+    const address = await prisma.address.findFirst({ where: { id: addressId, userId: session.userId } });
     if (!address) return errorResponse("INVALID_ADDRESS", "Address not found");
 
-    // Get cart items
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: session.userId },
       include: {
@@ -57,14 +53,11 @@ export async function POST(request: NextRequest) {
 
     if (!cartItems.length) return errorResponse("EMPTY_CART", "Your cart is empty");
 
-    // Validate stock
     for (const item of cartItems) {
-      if (item.variant.stock < item.quantity) {
+      if (item.variant.stock < item.quantity)
         return errorResponse("INSUFFICIENT_STOCK", `Insufficient stock for ${item.product.name}`);
-      }
     }
 
-    // GST calculation
     const gstSummary = calculateCartGST(
       cartItems.map((i) => ({
         name: i.product.name,
@@ -74,34 +67,26 @@ export async function POST(request: NextRequest) {
       }))
     );
 
+    // ── Server-side coupon re-validation — NEVER trust frontend discount ──
     let discountAmount = 0;
     let couponId: string | null = null;
 
-    // Apply coupon
     if (couponCode) {
-      const coupon = await prisma.coupon.findFirst({
-        where: {
-          code: couponCode.toUpperCase(),
-          isActive: true,
-          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
-        },
-      });
+      const couponResult = await validateCoupon(
+        couponCode,
+        cartItems.map((i) => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
+        session.userId
+      );
+      if (!couponResult.valid)
+        return errorResponse(couponResult.errorCode || "INVALID_COUPON", couponResult.error || "Invalid coupon");
 
-      if (!coupon) return errorResponse("INVALID_COUPON", "Invalid or expired coupon");
-      if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit)
-        return errorResponse("COUPON_EXHAUSTED", "Coupon usage limit reached");
-      if (gstSummary.subtotal < coupon.minCartValue)
-        return errorResponse("COUPON_MIN_VALUE", `Minimum order value ₹${coupon.minCartValue} required`);
-
-      discountAmount = coupon.type === "PERCENTAGE"
-        ? Math.min((gstSummary.subtotal * coupon.value) / 100, coupon.maxDiscount || Infinity)
-        : coupon.value;
-
-      couponId = coupon.id;
+      discountAmount = couponResult.discount;
+      const coupon = await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() }, select: { id: true } });
+      couponId = coupon?.id || null;
     }
 
-    const shippingAmount = gstSummary.subtotal >= 500 ? 0 : 49;
-    const total = gstSummary.totalWithGST + shippingAmount - discountAmount;
+    const shippingAmount = calcShipping(gstSummary.subtotal);
+    const total = Math.max(gstSummary.totalWithGST + shippingAmount - discountAmount, 0);
 
     const orderItemsData = cartItems.map((item) => ({
       productId: item.productId,
@@ -131,7 +116,7 @@ export async function POST(request: NextRequest) {
             gstAmount: gstSummary.totalGST,
             shippingAmount,
             discountAmount,
-            total: Math.max(total, 0),
+            total,
             couponCode: couponCode?.toUpperCase(),
             couponId,
             notes,
@@ -147,17 +132,13 @@ export async function POST(request: NextRequest) {
         }
 
         if (couponId) {
-          await tx.coupon.update({
-            where: { id: couponId },
-            data: { usedCount: { increment: 1 } },
-          });
+          await tx.coupon.update({ where: { id: couponId }, data: { usedCount: { increment: 1 } } });
         }
 
         await tx.cartItem.deleteMany({ where: { userId: session.userId } });
         return newOrder;
       });
 
-      // Send confirmation email — fire and forget
       prisma.user.findUnique({ where: { id: session.userId }, select: { email: true, name: true } })
         .then((user) => {
           if (user?.email) {
@@ -180,7 +161,6 @@ export async function POST(request: NextRequest) {
     }
 
     // ── ONLINE ───────────────────────────────────────────────────────────────
-    // Create order only — do NOT deduct stock yet (deduct after payment verified)
     const order = await prisma.order.create({
       data: {
         orderNumber: generateOrderNumber(),
@@ -191,7 +171,7 @@ export async function POST(request: NextRequest) {
         gstAmount: gstSummary.totalGST,
         shippingAmount,
         discountAmount,
-        total: Math.max(total, 0),
+        total,
         couponCode: couponCode?.toUpperCase(),
         couponId,
         notes,
@@ -207,18 +187,9 @@ export async function POST(request: NextRequest) {
     });
 
     await Promise.all([
-      prisma.order.update({
-        where: { id: order.id },
-        data: { razorpayOrderId: rzpOrder.id },
-      }),
+      prisma.order.update({ where: { id: order.id }, data: { razorpayOrderId: rzpOrder.id } }),
       prisma.payment.create({
-        data: {
-          orderId: order.id,
-          razorpayOrderId: rzpOrder.id,
-          amount: total,
-          currency: "INR",
-          status: "PENDING",
-        },
+        data: { orderId: order.id, razorpayOrderId: rzpOrder.id, amount: total, currency: "INR", status: "PENDING" },
       }),
     ]);
 
