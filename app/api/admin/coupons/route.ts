@@ -2,6 +2,8 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { successResponse, unauthorizedResponse, serverErrorResponse, errorResponse } from "@/lib/response";
+import { revalidateTag } from "next/cache";
+import { TAGS } from "@/lib/cache";
 
 export async function GET() {
   try {
@@ -40,6 +42,7 @@ export async function POST(request: NextRequest) {
         allowExtraProducts: allowExtraProducts ?? true,
       },
     });
+    revalidateTag(TAGS.coupons, "max");
     return successResponse({ coupon }, "Coupon created", 201);
   } catch { return serverErrorResponse(); }
 }

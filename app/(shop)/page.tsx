@@ -59,8 +59,8 @@ const getHomeData = unstable_cache(
   },
   ["homepage"],
   {
-    revalidate: 86400, // 24 hours fallback
-    tags: [TAGS.banners, TAGS.products, TAGS.categories, TAGS.socialPosts],
+    revalidate: 86400,
+    tags: [TAGS.banners, TAGS.products, TAGS.categories, TAGS.socialPosts, TAGS.coupons],
   }
 );
 
